@@ -3,13 +3,13 @@ import {changing} from "best-globals";
 
 export type Options={
     regexVersion?: RegExp,
-    onStartLoading:()=>{},
-    onEachFile:()=>{},
-    onError:(err:Error)=>{},
-    onNewVersionAvailable:(version:String)=>{}
+    onStartLoading:()=>void,
+    onEachFile:()=>void,
+    onError:(err:Error)=>void,
+    onNewVersionAvailable:(version:string)=>void
 }
 
-export default class ServiceWorkerAdmin{
+export class ServiceWorkerAdmin{
     private options:Options|null=null;
     private currentRegistration:ServiceWorkerRegistration|null = null;
     
@@ -26,7 +26,7 @@ export default class ServiceWorkerAdmin{
                     // https://w3c.github.io/ServiceWorker/#service-worker-registration-updatefound-event
                     var installingWorker = reg.installing;
                     //setMessage('Instalando una nueva version, por favor espere...','warning');
-                    installingWorker.onstatechange = async function() {
+                    installingWorker.onstatechange = function() {
                         self.options?.onStartLoading();
                         console.log("estado: ", installingWorker.state);
                         switch (installingWorker.state) {
@@ -48,12 +48,12 @@ export default class ServiceWorkerAdmin{
                                 break;
                             case 'activated':
                                 //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
-                                setTimeout(async function(){
+                                setTimeout(function(){
                                     location.reload(true);
                                 },3000)
                                 break;
                             case 'redundant':
-                                self.options?.onError();
+                                self.options?.onError('err');
                                 console.error('The installing service worker became redundant.');
                                 //setMessage('Se produjo un error al instalar la aplicación. ','danger')
                                 break;
@@ -73,6 +73,9 @@ export default class ServiceWorkerAdmin{
         let response = await fetch("@version");
         let version = response.statusText;
         return version
+    }
+    installFrom(relativePathJsonFile:string, appName:string){
+
     }
 }
 

@@ -4,7 +4,8 @@
     "main": "dist/service-worker-admin.js",
     "types": "dist/service-worker-admin.d.ts",
     "dependencies": {
-        "best-globals": "~0.10.5"
+        "best-globals": "^0.10.27",
+        "require-bro": "^0.2.2"
     },
     "scripts": {
         "prepublish": "npm run build",

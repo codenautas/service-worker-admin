@@ -1,5 +1,6 @@
 "use strict";
-import {ServiceWorkerAdmin} from "../dist/service-worker-admin";
+//import {ServiceWorkerAdmin} from "../dist/service-worker-admin";
+var ServiceWorkerAdmin=require("../dist/service-worker-admin.js").ServiceWorkerAdmin;
 window.onload=function(){
     var options={
         onEachFile: ()=>console.log('on each file'),

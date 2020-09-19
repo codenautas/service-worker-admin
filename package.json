@@ -7,8 +7,12 @@
         "best-globals": "^0.10.27",
         "require-bro": "^0.2.2"
     },
+    "devDependencies": {
+        "server4test": "^0.6.0"
+    },
     "scripts": {
         "prepublish": "npm run build",
-        "build": "(tsc -p tsconfig.json || echo \"continue w/error\")"
+        "build": "(tsc -p tsconfig.json || echo \"continue w/error\")",
+        "example": "node node_modules/server4test/lib/launch4test"
     }
 }

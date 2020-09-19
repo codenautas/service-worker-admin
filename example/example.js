@@ -5,19 +5,22 @@ var ServiceWorkerAdmin=require("../dist/service-worker-admin.js").ServiceWorkerA
 function console_log(message, obj){
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(message));
-    div.appendChild(document.createTextNode(JSON.stringify(obj)));
+    if(obj!=null){
+        div.appendChild(document.createTextNode(JSON.stringify(obj)));
+    }
     document.getElementById('console').appendChild(div);
 }
 
-window.onload=function(){
+window.onload=async function(){
     var options={
         onEachFile: (f)=>console_log('file: ',f),
-        onStartLoading: ()=>console_log('starting download'),
+        onInfoMessage: (m)=>console_log('sw:', m),
         onError: (err)=>console_log('on error', err),
         onNewVersionAvailable: (version)=>console_log('new version available: ', version)
     }
-    var swa = new ServiceWorkerAdmin(options)
-    //swa.installFrom('./example-for-cache.json')
+    var swa = new ServiceWorkerAdmin()
+    swa.setOptions(options);
+    await swa.installFrom('../dist','../example/example-for-cache.json','example')
     console.log("swa ", swa)
     document.getElementById('calcular').addEventListener('click',function(){
         var visor = document.getElementById('visor');

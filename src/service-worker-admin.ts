@@ -57,8 +57,9 @@ export class ServiceWorkerAdmin{
                         case 'activated':
                             //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
                             this.options.onInfoMessage?.('V 3');
-                            setTimeout(function(){
-                                location.reload(true);
+                            setTimeout(()=>{
+                                this.options.onInfoMessage?.('DEBE REINICIAR');
+                                // location.reload(true);
                             },3000)
                         break;
                         case 'redundant':

@@ -1,74 +1,30 @@
 "use strict";
 
+// Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
-    skipWaiting:()=>void
+    skipWaiting():void
 }
 interface FetchEvent extends Event{
     request:Request
-    respondWith:(promise:Promise<Response>|Response)=>void
-    waitUntil:(promise:Promise<any>)=>void
+    respondWith(promise:Promise<Response>|Response):void
+    waitUntil(promise:Promise<any>):void
 }
 
 const CACHE_NAME = '#20-09-16'; //BUSCAR
 const FALLBACK = '/eseco/campo'; //BUSCAR
-var urlsToCache:string[] = [
-    //"campo",
-    //"lib/react.production.min.js",
-    //"lib/react-dom.production.min.js",
-    //"lib/material-ui.production.min.js",
-    //"lib/clsx.min.js",
-    //"lib/redux.min.js",
-    //"lib/react-redux.min.js",
-    //"lib/require-bro.js",
-    //"lib/like-ar.js",
-    //"lib/best-globals.js",
-    //"lib/json4all.js",
-    //"lib/js-to-html.js",
-    //"lib/redux-typed-reducer.js",
-    //"lib/memoize-one.js",
-    //"adapt.js",
-    //"tipos.js",
-    //"digitov.js",
-    //"redux-formulario.js",
-    //"render-general.js",
-    //"render-formulario.js",
-    //"client_modules/row-validator.js",
-    //"unlogged.js",
-    //"lib/js-yaml.js",
-    //"lib/xlsx.core.min.js",
-    //"lib/lazy-some.js",
-    //"lib/sql-tools.js",
-    //"dialog-promise/dialog-promise.js",
-    //"moment/min/moment.js",
-    //"pikaday/pikaday.js",
-    //"lib/polyfills-bro.js",
-    //"lib/big.js",
-    //"lib/type-store.js",
-    //"lib/typed-controls.js",
-    //"lib/ajax-best-promise.js",
-    //"my-ajax.js",
-    //"my-start.js",
-    //"lib/my-localdb.js",
-    //"lib/my-websqldb.js",
-    //"lib/my-localdb.js.map",
-    //"lib/my-websqldb.js.map",
-    //"lib/my-inform-net-status.js",
-    //"lib/my-skin.js",
-    //"lib/cliente-en-castellano.js",
-    //"client/client.js",
-    //"client/menu.js",
-    //"dialog-promise/dialog-promise.css",
-    //"pikaday/pikaday.css",
-    //"css/offline-mode.css",
-    //"css/formulario-react.css",
-    //"img/main-loading.gif",
-];
+
 self.addEventListener('install', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
     //si hay cambios no espero para cambiarlo
     self.skipWaiting();
     console.log("instalando")
+    var params = new URLSearchParams(location.search);
+    var manifestPath:string = params.get('manifestPath')!;
+    var CACHE_NAME:string = params.get('appName')!;
+    var req = await fetch(manifestPath);
+    var manifestJson = await req.json();
+    var urlsToCache:string[] = manifestJson.cache;
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache)=>
             cache.addAll(urlsToCache)

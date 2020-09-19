@@ -1,10 +1,13 @@
 {
-	version:'3.4,5 r12',
-	cache:[
-		'example.html',
-		'example-no-network.html'
+	"version":"3.4,5 r12",
+	"cache":[
+		"../dist/service-worker-admin.js",
+		"../example/example.html",
+		"../example/example.js",
+		"../example/example.css",
+		"../example/example-no-network.html"
 	],
-	fallback:[
-		{path:'./login', fallback:'./example-no-network.html'}
+	"fallback":[
+		{"path":"./login", "fallback":"./example-no-network.html"}
 	]
 }

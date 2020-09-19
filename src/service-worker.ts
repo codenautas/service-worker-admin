@@ -10,9 +10,6 @@ interface FetchEvent extends Event{
     waitUntil(promise:Promise<any>):void
 }
 
-const CACHE_NAME = '#20-09-16'; //BUSCAR
-const FALLBACK = '/eseco/campo'; //BUSCAR
-
 self.addEventListener('install', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
@@ -20,8 +17,8 @@ self.addEventListener('install', async (evt)=>{
     self.skipWaiting();
     console.log("instalando")
     var params = new URLSearchParams(location.search);
-    var manifestPath:string = params.get('manifestPath')!;
     var CACHE_NAME:string = params.get('appName')!;
+    var manifestPath:string = params.get('manifestPath')!;
     var req = await fetch(manifestPath);
     var manifestJson = await req.json();
     var urlsToCache:string[] = manifestJson.cache;
@@ -35,6 +32,8 @@ self.addEventListener('install', async (evt)=>{
 self.addEventListener('fetch', (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
+    var params = new URLSearchParams(location.search);
+    var CACHE_NAME:string = params.get('appName')!;
     var sourceParts = event.request.url.split('/');
     var source:string = sourceParts[sourceParts.length-1];
     console.log("source",source)
@@ -57,7 +56,7 @@ self.addEventListener('fetch', (evt)=>{
                         return response;
                     }).catch((err)=>{
                         console.log(err)
-                        return new Response(`<p>Se produjo un error al intentar cargar la p&aacute;gina, es posible que no haya conexi&oacute;n a internet</p><a href=${FALLBACK}>Volver a Hoja de Ruta</button>`, {
+                        return new Response(`<p>Se produjo un error al intentar cargar la p&aacute;gina, es posible que no haya conexi&oacute;n a internet</p><a href='/'>Volver a Hoja de Ruta</button>`, {
                             headers: {'Content-Type': 'text/html'}
                         });
                     });
@@ -66,9 +65,12 @@ self.addEventListener('fetch', (evt)=>{
         );
     }
 });
+
 self.addEventListener('activate', (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
+    var params = new URLSearchParams(location.search);
+    var CACHE_NAME:string = params.get('appName')!;
     console.log("borrando caches viejas")
     event.waitUntil(
         caches.keys().then((cacheNames)=>{

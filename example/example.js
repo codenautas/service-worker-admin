@@ -1,6 +1,5 @@
 "use strict";
-//import {ServiceWorkerAdmin} from "../dist/service-worker-admin";
-var ServiceWorkerAdmin=require("../dist/service-worker-admin.js").ServiceWorkerAdmin;
+var ServiceWorkerAdmin=require("./service-worker-admin.js").ServiceWorkerAdmin;
 
 function console_log(message, obj){
     var div = document.createElement('div');
@@ -20,7 +19,7 @@ window.onload=async function(){
     }
     var swa = new ServiceWorkerAdmin()
     swa.setOptions(options);
-    await swa.installFrom('../dist','../example/example-for-cache.json','example')
+    await swa.installFrom('.','./example-for-cache.json','example')
     console.log("swa ", swa)
     document.getElementById('calcular').addEventListener('click',function(){
         var visor = document.getElementById('visor');

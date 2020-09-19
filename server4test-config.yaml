@@ -1,0 +1,6 @@
+server4test:
+  server4test-directory: true
+  public-dir:
+  - ./example
+  - ./dist
+  - ./node_modules

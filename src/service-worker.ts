@@ -1,8 +1,17 @@
 "use strict";
 
+interface WindowOrWorkerGlobalScope{
+    skipWaiting:()=>void
+}
+interface FetchEvent extends Event{
+    request:Request
+    respondWith:(promise:Promise<Response>|Response)=>void
+    waitUntil:(promise:Promise<any>)=>void
+}
+
 const CACHE_NAME = '#20-09-16'; //BUSCAR
 const FALLBACK = '/eseco/campo'; //BUSCAR
-var urlsToCache = [
+var urlsToCache:string[] = [
     //"campo",
     //"lib/react.production.min.js",
     //"lib/react-dom.production.min.js",
@@ -54,7 +63,9 @@ var urlsToCache = [
     //"css/formulario-react.css",
     //"img/main-loading.gif",
 ];
-self.addEventListener('install', async (event)=>{
+self.addEventListener('install', async (evt)=>{
+    // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
+    var event:FetchEvent = evt;
     //si hay cambios no espero para cambiarlo
     self.skipWaiting();
     console.log("instalando")
@@ -65,7 +76,9 @@ self.addEventListener('install', async (event)=>{
     );
 });
 
-self.addEventListener('fetch', (event)=>{
+self.addEventListener('fetch', (evt)=>{
+    // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
+    var event:FetchEvent = evt;
     var sourceParts = event.request.url.split('/');
     var source:string = sourceParts[sourceParts.length-1];
     console.log("source",source)
@@ -97,7 +110,9 @@ self.addEventListener('fetch', (event)=>{
         );
     }
 });
-self.addEventListener('activate', (event)=>{
+self.addEventListener('activate', (evt)=>{
+    // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
+    var event:FetchEvent = evt;
     console.log("borrando caches viejas")
     event.waitUntil(
         caches.keys().then((cacheNames)=>{

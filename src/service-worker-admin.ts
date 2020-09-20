@@ -16,13 +16,13 @@ export class ServiceWorkerAdmin{
     setOptions(opts: Options){
         this.options = opts;
     }
-    async installFrom(pathToServiceWorker:string, manifestPath:string, appName:string){
+    async installFrom(manifestPath:string, appName:string){
         if('serviceWorker' in navigator){
             var params = new URLSearchParams();
             params.append('appName',appName);
             params.append('manifestPath',manifestPath);
             var reg = await navigator.serviceWorker.register(
-                `${pathToServiceWorker}/service-worker.js?${params}`
+                `service-worker.js?${params}`
             );
             this.options.onInfoMessage?.('Registrado');
             console.log('Registered:', reg);

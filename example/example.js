@@ -19,7 +19,7 @@ window.onload=async function(){
     }
     var swa = new ServiceWorkerAdmin()
     swa.setOptions(options);
-    await swa.installFrom('.','./example-for-cache.json','example')
+    await swa.installFrom('./example-for-cache.json','example')
     console.log("swa ", swa)
     document.getElementById('calcular').addEventListener('click',function(){
         var visor = document.getElementById('visor');

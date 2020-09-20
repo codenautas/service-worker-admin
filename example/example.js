@@ -5,7 +5,11 @@ function console_log(message, obj){
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(message));
     if(obj!=null){
-        div.appendChild(document.createTextNode(JSON.stringify(obj)));
+        if(obj instanceof Error){
+            div.appendChild(document.createTextNode(obj.message));
+        }else{
+            div.appendChild(document.createTextNode(JSON.stringify(obj)));
+        }
     }
     document.getElementById('console').appendChild(div);
 }

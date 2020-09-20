@@ -14,7 +14,7 @@ self.addEventListener('install', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
     //si hay cambios no espero para cambiarlo
-    self.skipWaiting();
+    // self.skipWaiting();
     console.log("instalando")
     var params = new URLSearchParams(location.search);
     var CACHE_NAME:string = params.get('appName')!;
@@ -22,11 +22,11 @@ self.addEventListener('install', async (evt)=>{
     var req = await fetch(manifestPath);
     var manifestJson = await req.json();
     var urlsToCache:string[] = manifestJson.cache;
-    event.waitUntil(
+    //event.waitUntil(
         caches.open(CACHE_NAME).then((cache)=>
             cache.addAll(urlsToCache)
         )
-    );
+    //);
 });
 
 self.addEventListener('fetch', (evt)=>{

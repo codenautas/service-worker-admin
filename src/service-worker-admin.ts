@@ -24,7 +24,7 @@ export class ServiceWorkerAdmin{
             var reg = await navigator.serviceWorker.register(
                 `service-worker.js?${params}`
             );
-            this.options.onInfoMessage?.('Registrado');
+            this.options.onInfoMessage?.('Registrado:'+!!reg.installing+','+!!reg.waiting);
             console.log('Registered:', reg);
             this.currentRegistration = reg;
             //updatefound is fired if service-worker.js changes.
@@ -67,6 +67,8 @@ export class ServiceWorkerAdmin{
                             console.error('The installing service worker became redundant.');
                             //setMessage('Se produjo un error al instalar la aplicación. ','danger')
                         break;
+                        default:
+                            this.options.onInfoMessage?.('other:'+installingWorker.state);
                     }
                 };
             };
@@ -76,6 +78,7 @@ export class ServiceWorkerAdmin{
             // this.options.onError?.(new Error('serviceWorkers no soportados'));
             throw Error ('serviceWorkers no soportados');
         }
+        return !reg.installing;
     }
     async getVersion(){
         let response = await fetch("@version");

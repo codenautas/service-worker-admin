@@ -19,25 +19,30 @@ window.onload=async function(){
     }
     var swa = new ServiceWorkerAdmin()
     swa.setOptions(options);
-    await swa.installFrom('./example-for-cache.json','example')
-    console.log("swa ", swa)
-    document.getElementById('calcular').addEventListener('click',function(){
-        var visor = document.getElementById('visor');
-        var calculo = visor.value;
-        var resultado;
-        var color;
-        try{
-            resultado = new Function('return '+calculo)();
-            color='blue';
-        }catch(err){
-            resultado = err.message;
-            color='red';
-        }
-        var div=document.createElement('div');
-        div.color=color;
-        div.appendChild(document.createTextNode(calculo))
-        div.appendChild(document.createTextNode(' ⇨ '))
-        div.appendChild(document.createTextNode(resultado))
-        document.getElementById('history').appendChild(div);
-    })
+    var instalado = await swa.installFrom('./example-for-cache.json','example');
+    document.getElementById('cargando').style.display='none';
+    if(instalado){
+        document.getElementById('instalado').style.display='block';
+        document.getElementById('calcular').addEventListener('click',function(){
+            var visor = document.getElementById('visor');
+            var calculo = visor.value;
+            var resultado;
+            var color;
+            try{
+                resultado = new Function('return '+calculo)();
+                color='blue';
+            }catch(err){
+                resultado = err.message;
+                color='red';
+            }
+            var div=document.createElement('div');
+            div.color=color;
+            div.appendChild(document.createTextNode(calculo))
+            div.appendChild(document.createTextNode(' ⇨ '))
+            div.appendChild(document.createTextNode(resultado))
+            document.getElementById('history').appendChild(div);
+        })
+    }else{
+        document.getElementById('instalando').style.display='block';
+    }
 }

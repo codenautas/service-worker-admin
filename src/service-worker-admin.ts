@@ -10,6 +10,7 @@ export type Options={
 
 export class ServiceWorkerAdmin{
     private options:Partial<Options>={};
+    private CACHE_NAME:string;
     private currentRegistration:ServiceWorkerRegistration|null = null;
     constructor(){
     }
@@ -20,6 +21,7 @@ export class ServiceWorkerAdmin{
         if('serviceWorker' in navigator){
             var params = new URLSearchParams();
             params.append('appName',appName);
+            this.CACHE_NAME=appName;
             params.append('manifestPath',manifestPath);
             var reg = await navigator.serviceWorker.register(
                 `service-worker.js?${params}`
@@ -56,7 +58,7 @@ export class ServiceWorkerAdmin{
                             case 'activated':
                                 //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
                                 setTimeout(()=>{
-                                    this.options.onInfoMessage?.('INSTALADO NO HACE FALTA REINICIAR');
+                                    this.options.onInfoMessage?.('INSTALADO DEBE REINICIAR');
                                     resolve(installingWorker);
                                     // location.reload(true);
                                 },1000)
@@ -90,6 +92,12 @@ export class ServiceWorkerAdmin{
         let response = await fetch("@version");
         let version = response.statusText;
         return version
+    }
+    async uninstall(){
+        await this.currentRegistration?.unregister();
+        if(this.CACHE_NAME){
+            await caches.delete(this.CACHE_NAME);
+        }
     }
 }
 

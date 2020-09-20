@@ -19,14 +19,14 @@ self.addEventListener('install', async (evt)=>{
     var params = new URLSearchParams(location.search);
     var CACHE_NAME:string = params.get('appName')!;
     var manifestPath:string = params.get('manifestPath')!;
-    var req = await fetch(manifestPath);
-    var manifestJson = await req.json();
-    var urlsToCache:string[] = manifestJson.cache;
-    //event.waitUntil(
-        caches.open(CACHE_NAME).then((cache)=>
+    event.waitUntil((async ()=>{
+        var req = await fetch(manifestPath);
+        var manifestJson = await req.json();
+        var urlsToCache:string[] = manifestJson.cache;
+        await caches.open(CACHE_NAME).then((cache)=>
             cache.addAll(urlsToCache)
         )
-    //);
+    })());
 });
 
 self.addEventListener('fetch', (evt)=>{

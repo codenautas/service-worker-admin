@@ -45,24 +45,21 @@ export class ServiceWorkerAdmin{
                                     // have been added to the cache.
                                     // It's the perfect time to display a "New content is available; please refresh."
                                     // message in the page's interface.
-                                    this.options.onInfoMessage?.('V 1');
                                     console.log('New or updated content is available.');
                                 } else {
                                     // At this point, everything has been precached.
                                     // It's the perfect time to display a "Content is cached for offline use." message.
-                                    this.options.onInfoMessage?.('V 2');
                                     console.log('Content is now available offline!');
                                 }
                                 //setMessage(`Aplicación actualizada, por favor refresque la pantalla`,'all-ok');
                             break;
                             case 'activated':
                                 //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
-                                this.options.onInfoMessage?.('V 3');
                                 setTimeout(()=>{
                                     this.options.onInfoMessage?.('INSTALADO NO HACE FALTA REINICIAR');
                                     resolve(installingWorker);
                                     // location.reload(true);
-                                },3000)
+                                },1000)
                             break;
                             case 'redundant':
                                 this.options.onError?.(new Error('redundant'));

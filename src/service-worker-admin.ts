@@ -5,11 +5,13 @@ export type Options={
     onInfoMessage:(message?:string)=>void
     onEachFile:()=>void
     onError:(err:Error)=>void
-    onNewVersionAvailable:(version:string)=>void
     // Se llaman una sola vez como máximo c/u
-    onInstalling:()=>void
-    onJustInstalled:()=>Promise<boolean>
-    onActive:()=>void
+    onInstalling:()=>void // para poner el cartel "instalando" (y apagar la aplicación si está encendida)
+    onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
+        // run hace reload
+    onActive:()=>void  // para mostrar la aplicación
+    onNewVersionAvailable:(install:()=>void)=>void // para mostrar "hay una nuevar versión" y poner el botón "instalar"=>run
+        // install hace skipWaiting <-> llama a onInstalling()
 }
 
 export class ServiceWorkerAdmin{
@@ -105,7 +107,9 @@ export class ServiceWorkerAdmin{
         }
     }
     async updateToNewVersion(){
-        await this.currentRegistration?.waiting?.postMessage('skipWaiting');
+        location.reload();
+        // await this.currentRegistration?.waiting?.postMessage('skipWaiting');
+        // await this.currentRegistration?.unregister();
     }
 }
 

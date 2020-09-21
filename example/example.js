@@ -35,11 +35,18 @@ window.onload=async function(){
                 }
             })
         },
-        onActive:startCalculator
+        onActive:startCalculator,
+        onNewVersionAvailable:()=>{
+            document.getElementById('nueva-version-detectada').style.display='';
+            document.getElementById('actualizar').onclick=()=>{
+                swa.updateToNewVersion();
+            }
+        }
     });
     async function startCalculator(){
         document.getElementById('instalando').style.display='none';
         document.getElementById('instalado').style.display='block';
+        document.getElementById('version').textContent=await swa.getSW('version');
         var visor = document.getElementById('visor');
         var iNodo=0;
         var resultados={}

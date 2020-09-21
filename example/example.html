@@ -3,11 +3,14 @@
         <link href="example.css" rel="stylesheet">
     </head>
     <body>
-        <h1>Calculadora con SWA</h1>
+        <h1>Calculadora con SWA <span id=version></span></h1>
         <div id=cargando>cargando...</div>
         <div id=instalando style="display:none">
             <h2>instalando...</h2>
             <button id=arrancar style="display:none">Instalación Lista. Arrancar</button>
+        </div>
+        <div id=nueva-version-detectada style="display:none">
+            <span >Se detectó una nueva versión </span> <button id=actualizar>actualizar</button>
         </div>
         <div id=instalado style="display:none">
             <input id=visor autofocus><button id=calcular>=</button>

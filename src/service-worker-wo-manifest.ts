@@ -32,6 +32,7 @@ self.addEventListener('install', async (evt)=>{
 var specialSources:{[key:string]:()=>string}={
     "@version": ()=>version,
     "@CACHE_NAME": ()=>CACHE_NAME,
+    updateToNewVersion: ()=>''
 }
 
 self.addEventListener('fetch', (evt)=>{

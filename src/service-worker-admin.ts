@@ -45,6 +45,7 @@ export class ServiceWorkerAdmin{
                                     // It's the perfect time to display a "New content is available; please refresh."
                                     // message in the page's interface.
                                     console.log('New or updated content is available.');
+                                    this.options?.onNewVersionAvailable?.('nueva')
                                 } else {
                                     // At this point, everything has been precached.
                                     // It's the perfect time to display a "Content is cached for offline use." message.
@@ -70,6 +71,9 @@ export class ServiceWorkerAdmin{
                     };
                 };
             })
+            if(!!reg.waiting){
+                this.options?.onNewVersionAvailable?.('nueva')
+            }
             // Uso promesas para elegir el camino porque así me garantiza que se llaman una sola vez:
             if(!!reg.active){
                 this.options?.onActive?.()
@@ -99,6 +103,11 @@ export class ServiceWorkerAdmin{
         if(CACHE_NAME){
             await caches.delete(CACHE_NAME);
         }
+    }
+    async updateToNewVersion(){
+        // await this.currentRegistration?.update();
+        var CACHE_NAME = await this.getSW("updateToNewVersion")
+        location.reload();
     }
 }
 

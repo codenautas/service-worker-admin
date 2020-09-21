@@ -13,7 +13,8 @@ class ExampleServer extends Server4Test{
                 var sw = await fs.readFile('dist/service-worker-wo-manifest.js', 'utf8');
                 var manifest = JSON.parse(await fs.readFile('example/example-for-cache.json', 'utf8'));
                 var swManifest = sw
-                    .replace("'/*CACHE_NAME*/'", JSON.stringify(manifest.version))
+                    .replace("'/*version*/'", JSON.stringify(manifest.version))
+                    .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                     .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache));
                 fs.writeFile('dist/local-debug-sw-manifest.js',swManifest,'utf-8');
                 MiniTools.serveText(swManifest,'application/javascript')(req,res);

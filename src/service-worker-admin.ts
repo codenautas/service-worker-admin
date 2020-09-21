@@ -88,18 +88,17 @@ export class ServiceWorkerAdmin{
             throw Error ('serviceWorkers no soportados');
         }
     }
-    async getVersion(){
-        let response = await fetch("@version");
+    async getSW(variable:string){
+        let response = await fetch("@"+variable);
         let version = response.statusText;
         return version
     }
     async uninstall(){
+        var CACHE_NAME = await this.getSW("CACHE_NAME")
         await this.currentRegistration?.unregister();
-        /*
-        if(this.CACHE_NAME){
-            await caches.delete(this.CACHE_NAME);
+        if(CACHE_NAME){
+            await caches.delete(CACHE_NAME);
         }
-        */
     }
 }
 

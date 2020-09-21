@@ -1,7 +1,12 @@
 "use strict";
 
-var CACHE_NAME:string = '/*CACHE_NAME*/';
+// TEMPLATE-START
+var version:string = '/*version*/';
+var appName:string = '/*appName*/';
 var urlsToCache:string[] = [/*urlsToCache*/];
+// TEMPLATE-END
+
+var CACHE_NAME:string = appName+':'+version;
 
 // Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
@@ -24,17 +29,20 @@ self.addEventListener('install', async (evt)=>{
     ));
 });
 
+var specialSources:{[key:string]:()=>string}={
+    "@version": ()=>version,
+    "@CACHE_NAME": ()=>CACHE_NAME,
+}
+
 self.addEventListener('fetch', (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
-    var params = new URLSearchParams(location.search);
-    var CACHE_NAME:string = params.get('appName')!;
     var sourceParts = event.request.url.split('/');
     var source:string = sourceParts[sourceParts.length-1];
     console.log("source",source)
-    if(source=='@version'){
+    if(source in specialSources){
         var miBlob = new Blob();
-        var opciones = { "status" : 200 , "statusText" : CACHE_NAME, ok:true };
+        var opciones = { "status" : 200 , "statusText" : specialSources[source](), ok:true };
         var miRespuesta = new Response(miBlob,opciones);
         event.respondWith(miRespuesta);
     }else{
@@ -64,8 +72,6 @@ self.addEventListener('fetch', (evt)=>{
 self.addEventListener('activate', (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
-    var params = new URLSearchParams(location.search);
-    var CACHE_NAME:string = params.get('appName')!;
     console.log("borrando caches viejas")
     event.waitUntil(
         caches.keys().then((cacheNames)=>{

@@ -36,3 +36,22 @@ window.addEventListener('load', async()={
 
    1. Que el `service-worker.js` tenga un área donde el servidor mergee y ponga la lista de URL, el nombre de la CACHE etc...
    2. Que en vez de estar basado en promesas esté todo basado en callbacks de modo que se garantice el flujo y el reinicio
+
+```ts
+var swa = new ServiceWorkerAdmin()
+swa.installFrom({
+    manifest:'./example-for-cache.json',
+    appName:'example',
+    onInstalling:()=>{
+        document.getElemntById('installing').style.display='block';
+    }
+    onInstalled:async ()=>{
+        var confirm = await confirm('Ready to run. Reload?');
+        return confirm;
+    }
+    onActive:()=>{
+        document.getElemntById('main-app').style.display='block';
+        startApp();
+    }
+})
+```

@@ -10,7 +10,7 @@ var CACHE_NAME:string = appName+':'+version;
 
 // Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
-    skipWaiting():void
+    skipWaiting():Promise<void>
 }
 interface FetchEvent extends Event{
     request:Request
@@ -32,7 +32,6 @@ self.addEventListener('install', async (evt)=>{
 var specialSources:{[key:string]:()=>string}={
     "@version": ()=>version,
     "@CACHE_NAME": ()=>CACHE_NAME,
-    updateToNewVersion: ()=>''
 }
 
 self.addEventListener('fetch', (evt)=>{
@@ -86,4 +85,11 @@ self.addEventListener('activate', (evt)=>{
             );
         })
     );
+});
+
+self.addEventListener('message', function(evt) {
+    console.log("mensaje: ", evt.data)
+    if(evt.data=='skipWaiting'){
+        self.skipWaiting().then(()=>console.log(version));
+    }
 });

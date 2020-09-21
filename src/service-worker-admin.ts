@@ -94,8 +94,8 @@ export class ServiceWorkerAdmin{
     }
     async getSW(variable:string){
         let response = await fetch("@"+variable);
-        let version = response.statusText;
-        return version
+        let varResult = response.statusText;
+        return varResult
     }
     async uninstall(){
         var CACHE_NAME = await this.getSW("CACHE_NAME")
@@ -105,9 +105,7 @@ export class ServiceWorkerAdmin{
         }
     }
     async updateToNewVersion(){
-        // await this.currentRegistration?.update();
-        var CACHE_NAME = await this.getSW("updateToNewVersion")
-        location.reload();
+        await this.currentRegistration?.waiting?.postMessage('skipWaiting');
     }
 }
 

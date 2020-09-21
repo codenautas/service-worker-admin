@@ -1,23 +1,29 @@
 "use strict";
 
 export type Options={
-    regexVersion?: RegExp,
-    onInfoMessage:(message?:string)=>void,
-    onEachFile:()=>void,
-    onError:(err:Error)=>void,
+    manifestPath:string
+    appName:string
+    regexVersion?: RegExp
+    // Se llaman varias veces
+    onInfoMessage:(message?:string)=>void
+    onEachFile:()=>void
+    onError:(err:Error)=>void
     onNewVersionAvailable:(version:string)=>void
+    // Se llaman una sola vez como máximo c/u
+    onInstalling:()=>void
+    onJustInstalled:()=>Promise<boolean>
+    onActive:()=>void
 }
 
 export class ServiceWorkerAdmin{
     private options:Partial<Options>={};
-    private CACHE_NAME:string;
+    private CACHE_NAME:string|null=null;
     private currentRegistration:ServiceWorkerRegistration|null = null;
     constructor(){
     }
-    setOptions(opts: Options){
+    async installFrom(opts: Options):Promise<void>{
+        var {appName, manifestPath} = opts;
         this.options = opts;
-    }
-    async installFrom(manifestPath:string, appName:string){
         if('serviceWorker' in navigator){
             var params = new URLSearchParams();
             params.append('appName',appName);
@@ -59,8 +65,7 @@ export class ServiceWorkerAdmin{
                                 //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
                                 setTimeout(()=>{
                                     this.options.onInfoMessage?.('INSTALADO DEBE REINICIAR');
-                                    resolve(installingWorker);
-                                    // location.reload(true);
+                                    resolve();
                                 },1000)
                             break;
                             case 'redundant':
@@ -74,11 +79,15 @@ export class ServiceWorkerAdmin{
                     };
                 };
             })
-            return {
-                isActive:!!reg.active,
-                state:(reg.active||reg.installing||reg.waiting)?.state,
-                async ready(){
-                    return reg.active || ready;
+            // Uso promesas para elegir el camino porque así me garantiza que se llaman una sola vez:
+            if(!!reg.active){
+                this.options?.onActive?.()
+            }else{
+                this.options?.onInstalling?.()
+                await ready
+                var refreshNow = !this.options?.onJustInstalled || await this.options?.onJustInstalled()
+                if(refreshNow){
+                    location.reload()
                 }
             }
         }else{

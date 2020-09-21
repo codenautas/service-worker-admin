@@ -10,23 +10,24 @@ La API se basa en que parte del conocimiento lo tiene el cliente (la dirección 
 El uso sería así:
 
 ```ts
-window.addEventListener('load', async()={
-    var swa = new ServiceWorkerAdmin()
-    swa.setOptions(options);
-    var instalado = await swa.installFrom('./example-for-cache.json','example');
-    if(instalado.isActive){
-        // mostrar la aplicación
-        buttonUninstall.onclick=()=>{
-            swa.uninstall();
-        }
-    }else{
-        // mostrar cartel instalando
-        await instalado.ready()
-        // mostrar cartel listo para arrancar y reiniciar
+var swa = new ServiceWorkerAdmin()
+swa.installFrom({
+    manifest:'./example-for-cache.json',
+    appName:'example',
+    onInstalling:()=>{
+        document.getElemntById('installing').style.display='block';
+    },
+    onInstalled:async ()=>{
+        var confirm = await confirm('Ready to run. Reload?');
+        return confirm; // si contesta TRUE sw hace el reload
+    },
+    onActive:()=>{
+        // solo se llama si estaba instalado previamente después del reload
+        document.getElemntById('main-app').style.display='block';
+        startApp();
     }
 })
 ```
-
 ## Defectos
 
    1. Esta aproximación requiere conocer y pasarle el nombre del manifiesto
@@ -35,23 +36,4 @@ window.addEventListener('load', async()={
 ## Mejoras
 
    1. Que el `service-worker.js` tenga un área donde el servidor mergee y ponga la lista de URL, el nombre de la CACHE etc...
-   2. Que en vez de estar basado en promesas esté todo basado en callbacks de modo que se garantice el flujo y el reinicio
 
-```ts
-var swa = new ServiceWorkerAdmin()
-swa.installFrom({
-    manifest:'./example-for-cache.json',
-    appName:'example',
-    onInstalling:()=>{
-        document.getElemntById('installing').style.display='block';
-    }
-    onInstalled:async ()=>{
-        var confirm = await confirm('Ready to run. Reload?');
-        return confirm;
-    }
-    onActive:()=>{
-        document.getElemntById('main-app').style.display='block';
-        startApp();
-    }
-})
-```

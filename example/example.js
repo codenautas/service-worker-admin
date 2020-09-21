@@ -16,25 +16,30 @@ function console_log(message, obj){
 
 window.onload=async function(){
     var options={
-        onEachFile: (f)=>console_log('file: ',f),
-        onInfoMessage: (m)=>console_log('sw:', m),
-        onError: (err)=>console_log('on error', err),
         onNewVersionAvailable: (version)=>console_log('new version available: ', version)
     }
     var swa = new ServiceWorkerAdmin()
-    swa.setOptions(options);
-    var instalado = await swa.installFrom('./example-for-cache.json','example');
     document.getElementById('cargando').style.display='none';
-    if(!instalado.isActive){
-        document.getElementById('instalando').style.display='block';
-        //var p = instalado.ready();
-        //return;
-        await instalado.ready();
-        document.getElementById('arrancar').style.display='';
-        document.getElementById('arrancar').onclick=()=>{
-            location.reload();
-        }
-    }else{
+    swa.installFrom({
+        manifestPath:'./example-for-cache.json',
+        appName:'example',
+        onEachFile: (f)=>console_log('file: ',f),
+        onInfoMessage: (m)=>console_log('message: ', m),
+        onError: (err)=>console_log('error: ', err),
+        onInstalling:()=>{
+            document.getElementById('instalando').style.display='block';
+        },
+        onJustInstalled:async ()=>{
+            return new Promise((resolve)=>{
+                document.getElementById('arrancar').style.display='';
+                document.getElementById('arrancar').onclick=()=>{
+                    resolve(true)
+                }
+            })
+        },
+        onActive:startCalculator
+    });
+    async function startCalculator(){
         document.getElementById('instalando').style.display='none';
         document.getElementById('instalado').style.display='block';
         var visor = document.getElementById('visor');
@@ -56,7 +61,7 @@ window.onload=async function(){
             try{
                 var fun = new Function(...Object.keys(resultados),'return '+calculo)
                 console.log('fun',fun)
-                resultado = JSON.stringify(fun(...Object.keys(resultados).map(f=>resultados[f])));
+                resultado = fun(...Object.keys(resultados).map(f=>resultados[f]));
                 color='blue';
             }catch(err){
                 resultado = err.message;
@@ -71,7 +76,7 @@ window.onload=async function(){
             div.appendChild(document.createTextNode(' ⇐ '))
             div.appendChild(nodoClickeable(calculo))
             div.appendChild(document.createTextNode(' ⇨ '))
-            div.appendChild(nodoClickeable(resultado))
+            div.appendChild(nodoClickeable(JSON.stringify(resultado)))
             var history = document.getElementById('history')
             history.insertBefore(div,history.children[0]);
         }

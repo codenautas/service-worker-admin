@@ -2,7 +2,7 @@
     "compilerOptions": {
         "inlineSourceMap": true,
         "inlineSources": true,
-        "target": "es5",
+        "target": "es2018",
         "skipLibCheck": true, //para que no haga chequeo de tipos en los declaration files dentro de node-modules(pg-promise-strict, express, node)
         "typeRoots" : ["../node_modules/@types", "../node_modules/types.d.ts/modules"],
         "noImplicitAny": true,

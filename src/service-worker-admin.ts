@@ -1,9 +1,6 @@
 "use strict";
 
 export type Options={
-    manifestPath:string
-    appName:string
-    regexVersion?: RegExp
     // Se llaman varias veces
     onInfoMessage:(message?:string)=>void
     onEachFile:()=>void
@@ -17,20 +14,14 @@ export type Options={
 
 export class ServiceWorkerAdmin{
     private options:Partial<Options>={};
-    private CACHE_NAME:string|null=null;
     private currentRegistration:ServiceWorkerRegistration|null = null;
     constructor(){
     }
-    async installFrom(opts: Options):Promise<void>{
-        var {appName, manifestPath} = opts;
+    async installIfIsNotInstalled(opts: Options):Promise<void>{
         this.options = opts;
         if('serviceWorker' in navigator){
-            var params = new URLSearchParams();
-            params.append('appName',appName);
-            this.CACHE_NAME=appName;
-            params.append('manifestPath',manifestPath);
             var reg = await navigator.serviceWorker.register(
-                `service-worker.js?${params}`
+                `sw-manifest.js`
             );
             this.options.onInfoMessage?.('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
             console.log('Registered:', reg);
@@ -104,9 +95,11 @@ export class ServiceWorkerAdmin{
     }
     async uninstall(){
         await this.currentRegistration?.unregister();
+        /*
         if(this.CACHE_NAME){
             await caches.delete(this.CACHE_NAME);
         }
+        */
     }
 }
 

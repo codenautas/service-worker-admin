@@ -1,5 +1,8 @@
 "use strict";
 
+var CACHE_NAME:string = '/*CACHE_NAME*/';
+var urlsToCache:string[] = [/*urlsToCache*/];
+
 // Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
     skipWaiting():void
@@ -16,17 +19,9 @@ self.addEventListener('install', async (evt)=>{
     //si hay cambios no espero para cambiarlo
     // self.skipWaiting();
     console.log("instalando")
-    var params = new URLSearchParams(location.search);
-    var CACHE_NAME:string = params.get('appName')!;
-    var manifestPath:string = params.get('manifestPath')!;
-    event.waitUntil((async ()=>{
-        var req = await fetch(manifestPath);
-        var manifestJson = await req.json();
-        var urlsToCache:string[] = manifestJson.cache;
-        await caches.open(CACHE_NAME).then((cache)=>
-            cache.addAll(urlsToCache)
-        )
-    })());
+    event.waitUntil(caches.open(CACHE_NAME).then((cache)=>
+        cache.addAll(urlsToCache)
+    ));
 });
 
 self.addEventListener('fetch', (evt)=>{

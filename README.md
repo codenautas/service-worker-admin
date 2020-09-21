@@ -11,9 +11,7 @@ El uso sería así:
 
 ```ts
 var swa = new ServiceWorkerAdmin()
-swa.installFrom({
-    manifest:'./example-for-cache.json',
-    appName:'example',
+swa.installIfIsNotInstalled({
     onInstalling:()=>{
         document.getElemntById('installing').style.display='block';
     },
@@ -28,12 +26,4 @@ swa.installFrom({
     }
 })
 ```
-## Defectos
-
-   1. Esta aproximación requiere conocer y pasarle el nombre del manifiesto
-   2. Hay que hacer el reinicio a mano
-
-## Mejoras
-
-   1. Que el `service-worker.js` tenga un área donde el servidor mergee y ponga la lista de URL, el nombre de la CACHE etc...
 

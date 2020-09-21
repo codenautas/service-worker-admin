@@ -20,9 +20,7 @@ window.onload=async function(){
     }
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
-    swa.installFrom({
-        manifestPath:'./example-for-cache.json',
-        appName:'example',
+    swa.installIfIsNotInstalled({
         onEachFile: (f)=>console_log('file: ',f),
         onInfoMessage: (m)=>console_log('message: ', m),
         onError: (err)=>console_log('error: ', err),

@@ -24,26 +24,26 @@ window.onload=async function(){
         onEachFile: (f)=>console_log('file: ',f),
         onInfoMessage: (m)=>console_log('message: ', m),
         onError: (err)=>console_log('error: ', err),
-        onInstalling:()=>{
-            document.getElementById('instalando').style.display='block';
+        onJustInstalled:async (run)=>{
+            document.getElementById('arrancar').style.display='';
+            document.getElementById('arrancar').onclick=()=>{
+                run()
+            }
         },
-        onJustInstalled:async ()=>{
-            return new Promise((resolve)=>{
-                document.getElementById('arrancar').style.display='';
-                document.getElementById('arrancar').onclick=()=>{
-                    resolve(true)
-                }
-            })
-        },
-        onActive:startCalculator,
-        onNewVersionAvailable:()=>{
+        onReadyToStart:startCalculator,
+        onNewVersionAvailable:(install)=>{
             document.getElementById('nueva-version-detectada').style.display='';
             document.getElementById('actualizar').onclick=()=>{
-                swa.updateToNewVersion();
+                install();
             }
         }
     });
-    async function startCalculator(){
+    async function startCalculator(installing){
+        if(installing){
+            document.getElementById('instalado').style.display='none';
+            document.getElementById('instalando').style.display='block';
+            return;
+        }
         document.getElementById('instalando').style.display='none';
         document.getElementById('instalado').style.display='block';
         document.getElementById('version').textContent=await swa.getSW('version');

@@ -46,6 +46,7 @@ window.onload=async function(){
         }
         document.getElementById('instalando').style.display='none';
         document.getElementById('instalado').style.display='block';
+        document.getElementById('buscar-version-nueva').style.display='block';
         document.getElementById('version').textContent=await swa.getSW('version');
         var visor = document.getElementById('visor');
         var iNodo=0;
@@ -103,6 +104,14 @@ window.onload=async function(){
             await swa.uninstall()
             document.getElementById('confirmar-desinstalar').textContent='¡DESINSTALADO!'
             
+        })
+        document.getElementById('buscar-version').addEventListener('click',async ()=>{
+            var existsNewVersion = await swa.check4newVersion();
+            document.getElementById('buscar-version').style.display=existsNewVersion?"none":"";
+            document.getElementById('resultado-buscar-version').textContent=existsNewVersion?
+                ""
+            :
+                "la aplicación se encuentra actualizada";
         })
     }
 }

@@ -100,5 +100,9 @@ export class ServiceWorkerAdmin{
             await caches.delete(CACHE_NAME);
         }
     }
+    async check4newVersion():Promise<boolean>{
+        var reg = await this.currentRegistration?.update()
+        return !!reg.waiting || !!reg.installing;
+    }
 }
 

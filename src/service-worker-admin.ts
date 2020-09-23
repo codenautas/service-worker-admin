@@ -98,6 +98,20 @@ export class ServiceWorkerAdmin{
                 handleNewVersion();
             }
             this.options?.onReadyToStart?.(!reg.active);
+            var urlsToCache:string[] = await this.getSW("urlsToCache");
+            [   
+                {obj:document.scripts    , prop:'src' },
+                {obj:document.images     , prop:'src' },
+                {obj:document.styleSheets, prop:'href'},
+            ].forEach(def=>{
+                Array.prototype.forEach.call(def.obj, node=>{
+                    var url = new URL(node[def.prop]);
+                    var query = url.pathname + url.search;
+                    if(!urlsToCache.includes(query)){
+                        this.options?.onError?.(new Error(`Resource "${query}" is not in manifest`), 'initializing service-worker')
+                    }
+                })
+            })
         }else{
             console.log('serviceWorkers no soportados')
             // acá hay que elegir cómo dar el error:
@@ -111,6 +125,9 @@ export class ServiceWorkerAdmin{
     async getSW(variable:string){
         let response = await fetch("@"+variable);
         let varResult = response.statusText;
+        if(varResult === "@json"){
+            return response.json()
+        }
         return varResult
     }
     async uninstall(){

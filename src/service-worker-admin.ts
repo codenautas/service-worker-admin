@@ -4,7 +4,7 @@ export type Options={
     // Se llaman varias veces
     onInfoMessage:(message?:string)=>void
     onEachFile:()=>void
-    onError:(err:Error)=>void
+    onError:(err:Error, contexto:string)=>void
     onReadyToStart:(installing:boolean)=>void // Muestra la pantalla de instalando o la pantalla principal de la aplicación
     onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
         // run hace reload
@@ -18,12 +18,13 @@ export class ServiceWorkerAdmin{
     constructor(){
     }
     async installIfIsNotInstalled(opts: Options):Promise<void>{
+      try{
         this.options = opts;
         if('serviceWorker' in navigator){
             var reg = await navigator.serviceWorker.register(
                 `sw-manifest.js`
             );
-            var handleNewVersion = async  ()=>{
+            var handleNewVersion = async ()=>{
                 this.options?.onNewVersionAvailable?.(async ()=>{
                     this.options?.onReadyToStart?.(true);
                     await this.currentRegistration?.waiting?.postMessage('skipWaiting');
@@ -68,15 +69,22 @@ export class ServiceWorkerAdmin{
                             },1000)
                         break;
                         case 'redundant':
-                            this.options.onInfoMessage?.('El SW informa "redundante"'); // aparentemente esto no es un error
-                            console.error('The installing service worker became redundant.');
-                            //setMessage('Se produjo un error al instalar la aplicación. ','danger')
+                            this.options?.onError?.(new Error('redundant'), 'redundant installing')
+                            console.error(new Error('redundant'), 'redundant installing');
                         break;
                         default:
                             this.options.onInfoMessage?.('other:'+installingWorker.state);
                     }
                 };
+                installingWorker.onerror=(evErr)=>{
+                    this.options?.onError?.(evErr.error, 'installingWorker')
+                    console.error(evErr.error, 'installingWorker');
+                }
             };
+            navigator.serviceWorker.onmessage=(evMss)=>{
+                this.options?.onError?.(evMss.data, 'from serviceWorker');
+                console.error(evMss.data, 'from serviceWorker');
+            }
             if(!!reg.waiting && reg.active){
                 handleNewVersion();
             }
@@ -87,6 +95,9 @@ export class ServiceWorkerAdmin{
             // this.options.onError?.(new Error('serviceWorkers no soportados'));
             throw Error ('serviceWorkers no soportados');
         }
+      }catch(err){
+        this.options?.onError?.(err, 'installing');
+      }
     }
     async getSW(variable:string){
         let response = await fetch("@"+variable);
@@ -100,9 +111,10 @@ export class ServiceWorkerAdmin{
             await caches.delete(CACHE_NAME);
         }
     }
-    async check4newVersion():Promise<boolean>{
-        var reg = await this.currentRegistration?.update()
-        return !!reg.waiting || !!reg.installing;
+    async check4newVersion():Promise<void>{
+        // var reg = 
+        await this.currentRegistration?.update()
+        // return reg!=null && (!!reg.waiting || !!reg.installing);
     }
 }
 

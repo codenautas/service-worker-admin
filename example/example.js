@@ -1,7 +1,7 @@
 "use strict";
 var ServiceWorkerAdmin=require("./service-worker-admin.js").ServiceWorkerAdmin;
 
-function console_log(message, obj){
+function console_log(message, obj, color){
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(message));
     if(obj!=null){
@@ -11,6 +11,7 @@ function console_log(message, obj){
             div.appendChild(document.createTextNode(JSON.stringify(obj)));
         }
     }
+    if(color) div.style.color=color;
     document.getElementById('console').appendChild(div);
 }
 
@@ -23,7 +24,7 @@ window.onload=async function(){
     swa.installIfIsNotInstalled({
         onEachFile: (f)=>console_log('file: ',f),
         onInfoMessage: (m)=>console_log('message: ', m),
-        onError: (err)=>console_log('error: ', err),
+        onError: (err, context)=>console_log('error: '+(context?` en (${context})`:''), err),
         onJustInstalled:async (run)=>{
             document.getElementById('arrancar').style.display='';
             document.getElementById('arrancar').onclick=()=>{
@@ -106,12 +107,15 @@ window.onload=async function(){
             
         })
         document.getElementById('buscar-version').addEventListener('click',async ()=>{
-            var existsNewVersion = await swa.check4newVersion();
+            // var existsNewVersion = 
+            await swa.check4newVersion();
+            /*
             document.getElementById('buscar-version').style.display=existsNewVersion?"none":"";
             document.getElementById('resultado-buscar-version').textContent=existsNewVersion?
                 ""
             :
                 "la aplicación se encuentra actualizada";
+            */
         })
     }
 }

@@ -11,8 +11,14 @@ var CACHE_NAME:string = appName+':'+version;
 // Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
     skipWaiting():Promise<void>
+    clients:{get(clientId:FetchEvent['clientId']):Promise<Client>}
+}
+
+interface Client{
+    postMessage(message:any):void
 }
 interface FetchEvent extends Event{
+    clientId:'clientId'|'etc...'
     request:Request
     respondWith(promise:Promise<Response>|Response):void
     waitUntil(promise:Promise<any>):void
@@ -27,6 +33,7 @@ self.addEventListener('install', async (evt)=>{
     event.waitUntil(caches.open(CACHE_NAME).then((cache)=>
         cache.addAll(urlsToCache)
     ));
+    // idea de informar error: https://stackoverflow.com/questions/62909289/how-do-i-handle-a-rejected-promise-in-a-service-worker-install-event
 });
 
 var specialSources:{[key:string]:()=>string}={
@@ -34,7 +41,7 @@ var specialSources:{[key:string]:()=>string}={
     "@CACHE_NAME": ()=>CACHE_NAME,
 }
 
-self.addEventListener('fetch', (evt)=>{
+self.addEventListener('fetch', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
     var sourceParts = event.request.url.split('/');
@@ -57,8 +64,10 @@ self.addEventListener('fetch', (evt)=>{
                             throw Error('without response');
                         }
                         return response;
-                    }).catch((err)=>{
+                    }).catch(async (err)=>{
                         console.log(err)
+                        var client = await self.clients.get(event.clientId);
+                        client.postMessage(err);
                         return new Response(`<p>Se produjo un error al intentar cargar la p&aacute;gina, es posible que no haya conexi&oacute;n a internet</p><a href='/'>Volver a Hoja de Ruta</button>`, {
                             headers: {'Content-Type': 'text/html'}
                         });

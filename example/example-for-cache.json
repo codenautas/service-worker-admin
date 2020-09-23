@@ -1,5 +1,5 @@
 {
-	"version":"3.4",
+	"version":"3.2",
 	"appName":"exampleApp",
 	"cache":[
 		"./require-bro/lib/require-bro.js",
@@ -7,7 +7,8 @@
 		"./example.html",
 		"./example.js",
 		"./example.css",
-		"./example-no-network.html"
+		"./example-no-network.html",
+		"no-existe.png"
 	],
 	"fallback":[
 		{"path":"./login", "fallback":"./example-no-network.html"}

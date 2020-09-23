@@ -3,7 +3,7 @@
 export type Options={
     // Se llaman varias veces
     onInfoMessage:(message?:string)=>void
-    onEachFile:()=>void
+    onEachFile:(url:string, error:Error)=>void
     onError:(err:Error, contexto:string)=>void
     onReadyToStart:(installing:boolean)=>void // Muestra la pantalla de instalando o la pantalla principal de la aplicación
     onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
@@ -81,8 +81,17 @@ export class ServiceWorkerAdmin{
                     console.error(evErr.error, 'installingWorker');
                 }
             };
-            navigator.serviceWorker.onmessage=(evMss)=>{
-                this.options?.onError?.(evMss.data, 'from serviceWorker');
+            navigator.serviceWorker.onmessage=async (evMss)=>{
+                if(evMss.data instanceof Error){
+                    this.options?.onError?.(evMss.data, 'from serviceWorker');
+                }else{
+                    if(evMss.data.type === 'caching'){
+                        await this.options?.onEachFile?.(evMss.data.url, evMss.data.error);
+                        if(evMss.data.error){
+                            await this.options?.onError?.(evMss.data.error, 'caching '+evMss.data.url);
+                        }
+                    }
+                }
                 console.error(evMss.data, 'from serviceWorker');
             }
             if(!!reg.waiting && reg.active){

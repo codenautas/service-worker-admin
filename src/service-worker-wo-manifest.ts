@@ -11,7 +11,10 @@ var CACHE_NAME:string = appName+':'+version;
 // Esperando https://github.com/microsoft/TypeScript/issues/11781
 interface WindowOrWorkerGlobalScope{
     skipWaiting():Promise<void>
-    clients:{get(clientId:FetchEvent['clientId']):Promise<Client>}
+    clients:{
+        get(clientId:FetchEvent['clientId']):Promise<Client>
+        matchAll(query:any):Promise<Client[]>
+    }
 }
 
 interface Client{
@@ -23,6 +26,7 @@ interface FetchEvent extends Event{
     respondWith(promise:Promise<Response>|Response):void
     waitUntil(promise:Promise<any>):void
 }
+// Fin de la espera?
 
 self.addEventListener('install', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
@@ -30,8 +34,21 @@ self.addEventListener('install', async (evt)=>{
     //si hay cambios no espero para cambiarlo
     // self.skipWaiting();
     console.log("instalando")
+
     event.waitUntil(caches.open(CACHE_NAME).then((cache)=>
-        cache.addAll(urlsToCache)
+        Promise.all(urlsToCache.map(async urlToCache=>{
+            var error:Error|null=null;
+            try{
+                await cache.add(urlToCache)
+            }catch(err){
+                error=err;
+            }
+            var message = {type:'caching', url:urlToCache, error};
+            self.clients.matchAll({includeUncontrolled: true}).then(clients => {
+                for (const client of clients) client.postMessage(message);
+            });
+            if(error) throw error;
+        }))
     ));
     // idea de informar error: https://stackoverflow.com/questions/62909289/how-do-i-handle-a-rejected-promise-in-a-service-worker-install-event
 });

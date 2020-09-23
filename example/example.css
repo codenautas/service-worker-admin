@@ -1,4 +1,9 @@
 #console{
+    border:1px solid violet;
+    margin:12px;
+}
+
+#error-console{
     border:1px solid red;
     margin:12px;
 }
@@ -6,4 +11,8 @@
 #history{
     border:1px solid green;
     margin:12px;
+}
+
+#archivos{
+    border:1px solid #8FB;
 }

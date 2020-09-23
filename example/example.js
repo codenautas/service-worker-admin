@@ -1,18 +1,18 @@
 "use strict";
 var ServiceWorkerAdmin=require("./service-worker-admin.js").ServiceWorkerAdmin;
 
-function console_log(message, obj, color){
+function console_log(message, obj, id){
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(message));
     if(obj!=null){
         if(obj instanceof Error){
             div.appendChild(document.createTextNode(obj.message));
+            div.style.color='red';
         }else{
             div.appendChild(document.createTextNode(JSON.stringify(obj)));
         }
     }
-    if(color) div.style.color=color;
-    document.getElementById('console').appendChild(div);
+    document.getElementById(id||'console').appendChild(div);
 }
 
 window.onload=async function(){
@@ -22,9 +22,15 @@ window.onload=async function(){
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
     swa.installIfIsNotInstalled({
-        onEachFile: (f)=>console_log('file: ',f),
+        onEachFile: (url, error)=>{
+            console_log('file: ',url);
+            console_log(url, error, 'archivos')
+        },
         onInfoMessage: (m)=>console_log('message: ', m),
-        onError: (err, context)=>console_log('error: '+(context?` en (${context})`:''), err),
+        onError: (err, context)=>{
+            console_log('error: '+(context?` en (${context})`:''), err);
+            console_log(context, error, 'error-console')
+        },
         onJustInstalled:async (run)=>{
             document.getElementById('arrancar').style.display='';
             document.getElementById('arrancar').onclick=()=>{

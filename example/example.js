@@ -29,7 +29,7 @@ window.onload=async function(){
         onInfoMessage: (m)=>console_log('message: ', m),
         onError: (err, context)=>{
             console_log('error: '+(context?` en (${context})`:''), err);
-            console_log(context, error, 'error-console')
+            console_log(context, err, 'error-console')
         },
         onJustInstalled:async (run)=>{
             document.getElementById('arrancar').style.display='';

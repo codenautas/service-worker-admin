@@ -1,23 +1,11 @@
 "use strict";
 
-export type Options={
-    // Se llaman varias veces
-    onInfoMessage:(message?:string)=>void
-    onEachFile:(url:string, error:Error)=>void
-    onError:(err:Error, contexto:string)=>void
-    onReadyToStart:(installing:boolean)=>void // Muestra la pantalla de instalando o la pantalla principal de la aplicación
-    onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
-        // run hace reload
-    onNewVersionAvailable:(install:()=>void)=>void // para mostrar "hay una nuevar versión" y poner el botón "instalar"=>run
-        // install hace skipWaiting <-> llama a onInstalling()
-}
-
-export class ServiceWorkerAdmin{
-    private options:Partial<Options>={};
+class ServiceWorkerAdmin{
+    private options:Partial<ServiceWorkerAdmin.Options>={};
     private currentRegistration:ServiceWorkerRegistration|null = null;
     constructor(){
     }
-    async installIfIsNotInstalled(opts: Options):Promise<void>{
+    async installIfIsNotInstalled(opts: ServiceWorkerAdmin.Options):Promise<void>{
       try{
         this.options = opts;
         if('serviceWorker' in navigator){
@@ -98,20 +86,7 @@ export class ServiceWorkerAdmin{
                 handleNewVersion();
             }
             this.options?.onReadyToStart?.(!reg.active);
-            var urlsToCache:string[] = await this.getSW("urlsToCache");
-            [   
-                {obj:document.scripts    , prop:'src' },
-                {obj:document.images     , prop:'src' },
-                {obj:document.styleSheets, prop:'href'},
-            ].forEach(def=>{
-                Array.prototype.forEach.call(def.obj, node=>{
-                    var url = new URL(node[def.prop]);
-                    var query = url.pathname + url.search;
-                    if(!urlsToCache.includes(query)){
-                        this.options?.onError?.(new Error(`Resource "${query}" is not in manifest`), 'initializing service-worker')
-                    }
-                })
-            })
+            this.localResourceControl(3);
         }else{
             console.log('serviceWorkers no soportados')
             // acá hay que elegir cómo dar el error:
@@ -121,6 +96,42 @@ export class ServiceWorkerAdmin{
       }catch(err){
         this.options?.onError?.(err, 'installing');
       }
+    }
+    async localResourceControl(retrys:number){
+        var urlsToCache:string[] = await this.getSW("urlsToCache");
+        if(!(urlsToCache instanceof Array)){
+            if(retrys){
+                return new Promise((resolve, reject)=>{
+                    setTimeout(()=>{
+                        this.localResourceControl(retrys-1).then(resolve, reject)
+                    },1000)
+                });
+            }else{
+                this.options?.onError?.(new Error(`Manifest cache "${urlsToCache}"`), 'initializing service-worker')
+            }
+            return;
+        }
+        [   
+            {obj:document.scripts    , prop:'src' },
+            {obj:document.images     , prop:'src' },
+            {obj:document.styleSheets, prop:'href'},
+        ].forEach(def=>{
+            Array.prototype.forEach.call(def.obj, node=>{
+                var path = node[def.prop];
+                if(path){
+                    var query;
+                    try{
+                        var url = new URL(path);
+                        query = url.pathname + url.search;
+                        if(!urlsToCache.includes(query)){
+                            throw new Error('is not in manifest');
+                        }
+                    }catch(err){
+                        this.options?.onError?.(new Error(`Resource "${query}" ${err.message}`), 'initializing service-worker')
+                    }
+                }
+            })
+        })
     }
     async getSW(variable:string){
         let response = await fetch("@"+variable);
@@ -144,3 +155,23 @@ export class ServiceWorkerAdmin{
     }
 }
 
+namespace ServiceWorkerAdmin{
+    export type Options = {
+        // Se llaman varias veces
+        onInfoMessage:(message?:string)=>void
+        onEachFile:(url:string, error:Error)=>void
+        onError:(err:Error, contexto:string)=>void
+        onReadyToStart:(installing:boolean)=>void // Muestra la pantalla de instalando o la pantalla principal de la aplicación
+        onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
+            // run hace reload
+        onNewVersionAvailable:(install:()=>void)=>void // para mostrar "hay una nuevar versión" y poner el botón "instalar"=>run
+            // install hace skipWaiting <-> llama a onInstalling()
+    }
+}
+
+console.log('va global')
+
+// @ts-ignore esto es para web:
+window.ServiceWorkerAdmin = ServiceWorkerAdmin;
+
+export = ServiceWorkerAdmin;

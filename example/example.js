@@ -1,5 +1,5 @@
 "use strict";
-var ServiceWorkerAdmin=require("./service-worker-admin.js").ServiceWorkerAdmin;
+var ServiceWorkerAdmin=require("./service-worker-admin.js");
 
 function console_log(message, obj, id){
     var div = document.createElement('div');

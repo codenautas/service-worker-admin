@@ -4,6 +4,7 @@
 var version:string = '/*version*/';
 var appName:string = '/*appName*/';
 var urlsToCache:string[] = [/*urlsToCache*/];
+var fallback:{path:string, fallback:string}[] = [/*fallbacks*/];
 // TEMPLATE-END
 
 var CACHE_NAME:string = appName+':'+version;
@@ -77,20 +78,21 @@ self.addEventListener('fetch', async (evt)=>{
             caches.open(CACHE_NAME).then((cache)=>
                 cache.match(event.request).then((response)=>{
                     console.log("respuesta caché: ", response)
-                    return response || fetch(event.request).then((response)=>{
-                        console.log("respuesta", response)
-                        if(!response) {
-                            console.log("no tiene respuesta")
-                            throw Error('without response');
-                        }
-                        return response;
-                    }).catch(async (err)=>{
+                    return response || fetch(event.request).catch(async (err)=>{
                         console.log(err)
-                        var client = await self.clients.get(event.clientId);
-                        client.postMessage(err);
-                        return new Response(`<p>Se produjo un error al intentar cargar la p&aacute;gina, es posible que no haya conexi&oacute;n a internet</p><a href='/'>Volver a Hoja de Ruta</button>`, {
-                            headers: {'Content-Type': 'text/html'}
-                        });
+                        console.log("request: ", event.request)
+                        var fallbackResult = fallback.find((aFallback)=>aFallback.path.includes(source))
+                        if(fallbackResult){
+                            return cache.match(fallbackResult.fallback).then((response)=>{
+                                if(response){
+                                    console.log("respuesta fallback: ", response)
+                                    return response
+                                }else{
+                                    throw err
+                                }
+                            })
+                        }
+                        throw err
                     });
                 })
             )

@@ -1,19 +1,34 @@
 {
-    "name": "service-worker-admin",
-    "version": "0.1.0",
-    "main": "dist/service-worker-admin.js",
-    "types": "dist/service-worker-admin.d.ts",
-    "dependencies": {
-        "best-globals": "^0.10.27",
-        "require-bro": "^0.2.2"
-    },
-    "devDependencies": {
-        "mini-tools": "^1.10.0",
-        "server4test": "^0.7.0"
-    },
-    "scripts": {
-        "prepublish": "npm run build",
-        "build": "(tsc -p tsconfig.json || echo \"continue w/error\")",
-        "example": "node node_modules/server4test/lib/launch4test"
-    }
+  "name": "service-worker-admin",
+  "version": "0.1.0",
+  "repository": "codenautas/service-worker-admin",
+  "license": "MIT",
+  "main": "dist/service-worker-admin.js",
+  "types": "dist/service-worker-admin.d.ts",
+  "files": [
+    "dist"
+  ],
+  "contributors": [
+      {
+        "name": "Emilio Platzer",
+        "email": "emilioplatzer@gmail.com"
+      },
+      {
+        "name": "Manuel De la Penna",
+        "email": "manueldelapenna@gmail.com"
+      }
+  ],
+  "dependencies": {
+      "best-globals": "^0.10.27",
+      "require-bro": "^0.2.2"
+  },
+  "devDependencies": {
+      "mini-tools": "^1.10.0",
+      "server4test": "^0.7.0"
+  },
+  "scripts": {
+      "prepublish": "npm run build",
+      "build": "(tsc -p tsconfig.json || echo \"continue w/error\")",
+      "example": "node node_modules/server4test/lib/launch4test"
+  }
 }

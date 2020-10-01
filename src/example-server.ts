@@ -9,7 +9,7 @@ class ExampleServer extends Server4Test{
     }
     directServices(){
         return super.directServices().concat([
-            {path:'/sw-manifest.js', middleware:async function(req, res, next){
+            {path:'/swa-manifest.js', middleware:async function(req, res, next){
                 try{
                     var sw = await fs.readFile('dist/service-worker-wo-manifest.js', 'utf8');
                     var manifest = JSON.parse(await fs.readFile('example/example-for-cache.json', 'utf8'));

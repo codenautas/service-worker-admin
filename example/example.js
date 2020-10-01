@@ -22,6 +22,7 @@ window.onload=async function(){
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
     swa.installIfIsNotInstalled({
+        serviceWorkerFilename:'swa-manifest.js',
         onEachFile: (url, error)=>{
             console_log('file: ',url);
             console_log(url, error, 'archivos')

@@ -10,7 +10,7 @@ class ServiceWorkerAdmin{
         this.options = opts;
         if('serviceWorker' in navigator){
             var reg = await navigator.serviceWorker.register(
-                `sw-manifest.js`
+                this.options.serviceWorkerFilename||`sw-manifest.js`
             );
             var handleNewVersion = async ()=>{
                 this.options?.onNewVersionAvailable?.(async ()=>{
@@ -158,6 +158,7 @@ class ServiceWorkerAdmin{
 namespace ServiceWorkerAdmin{
     export type Options = {
         // Se llaman varias veces
+        serviceWorkerFilename?:string,
         onInfoMessage:(message?:string)=>void
         onEachFile:(url:string, error:Error)=>void
         onError:(err:Error, contexto:string)=>void

@@ -16,7 +16,8 @@ class ServiceWorkerAdmin{
                 this.options?.onNewVersionAvailable?.(async ()=>{
                     this.options?.onReadyToStart?.(true);
                     await this.currentRegistration?.waiting?.postMessage('skipWaiting');
-                })
+                });
+                this.localResourceControl(0);
             }
             this.options.onInfoMessage?.('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
             console.log('Registered:', reg);
@@ -86,7 +87,6 @@ class ServiceWorkerAdmin{
                 handleNewVersion();
             }
             this.options?.onReadyToStart?.(!reg.active);
-            this.localResourceControl(3);
         }else{
             console.log('serviceWorkers no soportados')
             // acá hay que elegir cómo dar el error:
@@ -99,6 +99,7 @@ class ServiceWorkerAdmin{
     }
     async localResourceControl(retrys:number){
         var urlsToCache:string[] = await this.getSW("urlsToCache");
+        console.log('LO QUE RECIBO DE getSW',urlsToCache);
         if(!(urlsToCache instanceof Array)){
             if(retrys){
                 return new Promise((resolve, reject)=>{

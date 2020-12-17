@@ -1,5 +1,5 @@
 {
-	"version":"3.4",
+	"version":"3.5i",
 	"appName":"exampleApp",
 	"cache":[
 		"./require-bro/lib/require-bro.js",
@@ -10,7 +10,9 @@
 		"./example-no-network.html",
 		"./example-no-network-other.html"
 	],
+	"onTheFlyCacher":"/(hdr_panel\\d+_tarea\\d+)|(reloj.js)/",
 	"fallback":[
+		{"path":"./only-online.html", "fallback":"./example-no-network.html"},
 		{"path":"./login", "fallback":"./example-no-network.html"},
 		{"path":"./logout", "fallback":"./example-no-network-other.html"}
 	]

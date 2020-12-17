@@ -124,5 +124,20 @@ window.onload=async function(){
                 "la aplicación se encuentra actualizada";
             */
         })
+        var botonAgregarReloj=document.getElementById('agregar_reloj');
+        botonAgregarReloj.addEventListener('click',async ()=>{
+            botonAgregarReloj.disabled=true;
+            var script = document.createElement('script');
+            script.src='reloj.js';
+            document.body.appendChild(script);
+            script.onload=()=>{
+                instalarReloj();
+            };
+            script.onerror=(err)=>{
+                console.log(err);
+                instalarReloj();
+                botonAgregarReloj.textContent=err.message||err;
+            }
+        })
     }
 }

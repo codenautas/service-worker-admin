@@ -5,6 +5,7 @@ var version:string = '/*version*/';
 var appName:string = '/*appName*/';
 var urlsToCache:string[] = [/*urlsToCache*/];
 var fallback:{path:string, fallback:string}[] = [/*fallbacks*/];
+var onTheFlyCacher = /#CACHE$/;
 // TEMPLATE-END
 
 var CACHE_NAME:string = appName+':'+version;
@@ -76,9 +77,11 @@ self.addEventListener('fetch', async (evt)=>{
     }else{
         event.respondWith(
             caches.open(CACHE_NAME).then((cache)=>
-                cache.match(event.request).then((response)=>{
+                cache.match(event.request).then(async (response)=>{
                     console.log("respuesta caché: ", response)
-                    return response || fetch(event.request).catch(async (err)=>{
+                    return response || ( 
+                        event.request.url.match(onTheFlyCacher) && await cache.add(event.request)
+                    ) || fetch(event.request).catch(async (err)=>{
                         console.log(err)
                         console.log("request: ", event.request)
                         var fallbackResult = fallback.find((aFallback)=>aFallback.path.includes(source))

@@ -17,7 +17,8 @@ class ExampleServer extends Server4Test{
                         .replace("'/*version*/'", JSON.stringify(manifest.version))
                         .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                         .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                        .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
+                        .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
+                        .replace("/#CACHE$/", manifest.onTheFlyCacher);
                     fs.writeFile('dist/local-debug-sw-manifest.js',swManifest,'utf-8');
                     MiniTools.serveText(swManifest,'application/javascript')(req,res);
                 }catch(err){

@@ -24,7 +24,7 @@ function mostrarEstadoLogin(){
     console.log('lasCookies',lasCookies);
     var elemento=document.getElementById('estado_login');
     if(lasCookies.login=='S'){
-        elemento.textContent='logged ✅';
+        elemento.textContent='logged ✔️';
         elemento.href='/login-change?state=N';
     }else{
         elemento.textContent='UNLOGGED'

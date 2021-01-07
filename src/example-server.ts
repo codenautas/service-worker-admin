@@ -45,7 +45,7 @@ class ExampleServer extends Server4Test{
                 res.send('<h2>changed:'+newState+'</h2>')
             }},
             {path:'/login-time', middleware:async function(req, res){
-                var cookie = parseStrCookies(req.headers.cookie,'');
+                var cookie = parseStrCookies(req.headers.cookie || '','');
                 if(cookie.login=='S'){
                     res.status(200);
                     res.send(new Date().toLocaleTimeString());

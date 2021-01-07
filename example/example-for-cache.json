@@ -1,5 +1,5 @@
 {
-	"version":"3.5i",
+	"version":"3.5q",
 	"appName":"exampleApp",
 	"cache":[
 		"./require-bro/lib/require-bro.js",

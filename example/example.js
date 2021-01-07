@@ -15,6 +15,23 @@ function console_log(message, obj, id){
     document.getElementById(id||'console').appendChild(div);
 }
 
+function mostrarEstadoLogin(){
+    var lasCookies = {};
+    (document.cookie||'').split(';').map(function(pair){
+        var igual=pair.indexOf('=');
+        lasCookies[pair.substr(0,igual).trim()]=pair.substr(igual+1).trim();
+    })
+    console.log('lasCookies',lasCookies);
+    var elemento=document.getElementById('estado_login');
+    if(lasCookies.login=='S'){
+        elemento.textContent='logged ✅';
+        elemento.href='/login-change?state=N';
+    }else{
+        elemento.textContent='UNLOGGED'
+        elemento.href='/login-change?state=S';
+    }
+}
+
 window.onload=async function(){
     var options={
         onNewVersionAvailable: (version)=>console_log('new version available: ', version)
@@ -140,4 +157,5 @@ window.onload=async function(){
             }
         })
     }
+    mostrarEstadoLogin();
 }

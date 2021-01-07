@@ -2,6 +2,20 @@ import { promises as fs } from "fs";
 import {Server4Test, Server4TestOpts} from "server4test";
 import * as MiniTools from "mini-tools";
 
+function parseStrCookies(cookieString:string, prefix:string){
+    var output = {} as {[k:string]:string};
+    cookieString.split(/\s*;\s*/).forEach(function(pairStr:string) {
+        var pair = pairStr.split(/\s*=\s*/);
+        var varName = pair[0];
+        if(varName.substr(0,prefix.length)==prefix){
+            varName=varName.slice(prefix.length);
+        }
+        output[varName] = pair.splice(1).join('=');
+    });
+    return output;
+}
+
+
 class ExampleServer extends Server4Test{
     constructor(opts:Partial<Server4TestOpts>){
     // @ts-ignore
@@ -25,6 +39,21 @@ class ExampleServer extends Server4Test{
                     MiniTools.serveErr(req,res,next!)(err);
                 }
             }},
+            {path:'/login-change', middleware:async function(req, res){
+                var newState=req.query.state=='N'?'N':'S';
+                res.cookie('login', newState)
+                res.send('<h2>changed:'+newState+'</h2>')
+            }},
+            {path:'/login-time', middleware:async function(req, res){
+                var cookie = parseStrCookies(req.headers.cookie,'');
+                if(cookie.login=='S'){
+                    res.status(200);
+                    res.send(new Date().toLocaleTimeString());
+                }else{
+                    res.status(401);
+                    res.send('not logged in');
+                }
+            }}
         ])
     }
 }

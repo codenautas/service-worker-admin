@@ -32,6 +32,13 @@ function mostrarEstadoLogin(){
     }
 }
 
+async function traerLoginTime(){
+    var req = await fetch('/login-time');
+    var text = await req.text();
+    var elemento = document.getElementById('login_time');
+    elemento.textContent=text;
+}
+
 window.onload=async function(){
     var options={
         onNewVersionAvailable: (version)=>console_log('new version available: ', version)
@@ -155,7 +162,9 @@ window.onload=async function(){
                 instalarReloj();
                 botonAgregarReloj.textContent=err.message||err;
             }
-        })
+        });
+        traerLoginTime();
     }
     mostrarEstadoLogin();
+    traerLoginTime();
 }

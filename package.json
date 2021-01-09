@@ -1,6 +1,6 @@
 {
   "name": "service-worker-admin",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": "codenautas/service-worker-admin",
   "license": "MIT",
   "main": "dist/service-worker-admin.js",

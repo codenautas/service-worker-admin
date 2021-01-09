@@ -31,6 +31,14 @@ interface FetchEvent extends Event{
 }
 // Fin de la espera?
 
+type Message={type:'caching', url:string, error:Error|null} | {type:'log', text:string}
+
+function broadcastMessage(message:Message){
+    self.clients.matchAll({includeUncontrolled: true}).then(clients => {
+        for (const client of clients) client.postMessage(message);
+    });
+}
+
 self.addEventListener('install', async (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
@@ -46,13 +54,14 @@ self.addEventListener('install', async (evt)=>{
             }catch(err){
                 error=err;
             }
-            var message = {type:'caching', url:urlToCache, error};
-            self.clients.matchAll({includeUncontrolled: true}).then(clients => {
-                for (const client of clients) client.postMessage(message);
-            });
+            var message:Message = {type:'caching', url:urlToCache, error};
+            console.log("hago broadcast")
+            broadcastMessage(message);
+            console.log("fin broadcast")
             if(error) throw error;
         }))
     ));
+    console.log("fin instalando")
     // idea de informar error: https://stackoverflow.com/questions/62909289/how-do-i-handle-a-rejected-promise-in-a-service-worker-install-event
 });
 
@@ -119,6 +128,7 @@ self.addEventListener('activate', (evt)=>{
             );
         })
     );
+    console.log("fin borrando caches viejas")
 });
 
 self.addEventListener('message', function(evt) {

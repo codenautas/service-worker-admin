@@ -14,12 +14,19 @@ class ServiceWorkerAdmin{
             );
             var handleNewVersion = async ()=>{
                 this.options?.onNewVersionAvailable?.(async ()=>{
-                    this.options?.onReadyToStart?.(true);
+                    var alreadyActive = !!reg.active;
+                    this.options?.onReadyToStart?.(!reg.active || true);
                     await this.currentRegistration?.waiting?.postMessage('skipWaiting');
+                    if(alreadyActive){
+                        await this.options?.onJustInstalled?.(()=>{
+                            location.reload()
+                        })    
+                    }
                 });
                 this.localResourceControl(0);
             }
             this.options.onInfoMessage?.('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
+            console.log('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
             console.log('Registered:', reg);
             this.currentRegistration = reg;
             //updatefound is fired if service-worker.js changes.

@@ -71,6 +71,7 @@ window.onload=async function(){
         }
     });
     async function startCalculator(installing){
+        console.log('startCalculator', installing)
         if(installing){
             document.getElementById('instalado').style.display='none';
             document.getElementById('instalando').style.display='block';

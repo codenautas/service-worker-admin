@@ -5,6 +5,12 @@ class ServiceWorkerAdmin{
     private currentRegistration:ServiceWorkerRegistration|null = null;
     constructor(){
     }
+    getStatus(callback?:ServiceWorkerAdmin.Options["onStateChange"], state?:ServiceWorkerState){
+        if(callback!=null){
+            var reg = this.currentRegistration;
+            callback(!!reg?.active, !!reg?.installing, !!reg?.waiting, state);
+        }
+    }
     async installIfIsNotInstalled(opts: ServiceWorkerAdmin.Options):Promise<void>{
       try{
         this.options = opts;
@@ -12,25 +18,14 @@ class ServiceWorkerAdmin{
             var reg = await navigator.serviceWorker.register(
                 this.options.serviceWorkerFilename||`sw-manifest.js`
             );
-            var handleNewVersion = async ()=>{
-                this.options?.onNewVersionAvailable?.(async ()=>{
-                    var alreadyActive = !!reg.active;
-                    this.options?.onReadyToStart?.(!reg.active || true);
-                    await this.currentRegistration?.waiting?.postMessage('skipWaiting');
-                    if(alreadyActive){
-                        await this.options?.onJustInstalled?.(()=>{
-                            location.reload()
-                        })    
-                    }
-                });
-                this.localResourceControl(0);
-            }
             this.options.onInfoMessage?.('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
             console.log('Registrado:'+!!reg.active+','+!!reg.installing+','+!!reg.waiting+','+reg.active?.state+','+reg.installing?.state+','+reg.waiting?.state);
             console.log('Registered:', reg);
             this.currentRegistration = reg;
             //updatefound is fired if service-worker.js changes.
             reg.onupdatefound = ()=>{
+                this.getStatus(this.options.onStateChange);
+                console.log('recibí un onupdatefound');
                 this.options.onInfoMessage?.('Instalando');
                 // The updatefound event implies that reg.installing is set; see
                 // https://w3c.github.io/ServiceWorker/#service-worker-registration-updatefound-event
@@ -39,6 +34,7 @@ class ServiceWorkerAdmin{
                 installingWorker.onstatechange = ()=>{
                     this.options.onInfoMessage?.(installingWorker.state);
                     console.log("estado: ", installingWorker.state);
+                    this.getStatus(this.options.onStateChange,installingWorker.state);
                     switch (installingWorker.state) {
                         case 'installed':
                             if (navigator.serviceWorker.controller) {
@@ -47,7 +43,6 @@ class ServiceWorkerAdmin{
                                 // It's the perfect time to display a "New content is available; please refresh."
                                 // message in the page's interface.
                                 console.log('New or updated content is available.');
-                                handleNewVersion();
                             } else {
                                 // At this point, everything has been precached.
                                 // It's the perfect time to display a "Content is cached for offline use." message.
@@ -57,12 +52,7 @@ class ServiceWorkerAdmin{
                         break;
                         case 'activated':
                             //setMessage(`Aplicación actualizada, espere a que se refresque la pantalla`,'all-ok');
-                            setTimeout(async ()=>{
-                                this.options.onInfoMessage?.('INSTALADO DEBE REINICIAR');
-                                await this.options?.onJustInstalled?.(()=>{
-                                    location.reload()
-                                })
-                            },1000)
+                            this.options.onInfoMessage?.('INSTALADO DEBE REINICIAR');
                         break;
                         case 'redundant':
                             this.options?.onError?.(new Error('redundant'), 'redundant installing')
@@ -80,20 +70,21 @@ class ServiceWorkerAdmin{
             navigator.serviceWorker.onmessage=async (evMss)=>{
                 if(evMss.data instanceof Error){
                     this.options?.onError?.(evMss.data, 'from serviceWorker');
+                    console.error(evMss.data.message, 'from serviceWorker 1');
                 }else{
                     if(evMss.data.type === 'caching'){
                         await this.options?.onEachFile?.(evMss.data.url, evMss.data.error);
                         if(evMss.data.error){
                             await this.options?.onError?.(evMss.data.error, 'caching '+evMss.data.url);
+                            console.error(evMss.data.error.message, 'from serviceWorker 2');
+                        }else{
+                            console.log(JSON.stringify(evMss.data), 'from serviceWorker 3');
                         }
                     }
                 }
-                console.error(evMss.data, 'from serviceWorker');
             }
-            if(!!reg.waiting && reg.active){
-                handleNewVersion();
-            }
-            this.options?.onReadyToStart?.(!reg.active);
+            this.options?.onReadyToStart?.();
+            this.getStatus(this.options.onStateChange);
         }else{
             console.log('serviceWorkers no soportados')
             // acá hay que elegir cómo dar el error:
@@ -158,7 +149,8 @@ class ServiceWorkerAdmin{
     }
     async check4newVersion():Promise<void>{
         // var reg = 
-        await this.currentRegistration?.update()
+        var result = await this.currentRegistration?.update()
+        console.log('checking 4 new Version. Check ok',result)
         // return reg!=null && (!!reg.waiting || !!reg.installing);
     }
 }
@@ -170,11 +162,8 @@ namespace ServiceWorkerAdmin{
         onInfoMessage:(message?:string)=>void
         onEachFile:(url:string, error:Error)=>void
         onError:(err:Error, contexto:string)=>void
-        onReadyToStart:(installing:boolean)=>void // Muestra la pantalla de instalando o la pantalla principal de la aplicación
-        onJustInstalled:(run:()=>void)=>void // para mostra "fin de la instalación y poner el botón "entrar"=>run()
-            // run hace reload
-        onNewVersionAvailable:(install:()=>void)=>void // para mostrar "hay una nuevar versión" y poner el botón "instalar"=>run
-            // install hace skipWaiting <-> llama a onInstalling()
+        onStateChange:(active:boolean, installing:boolean, waiting:boolean, installerState?:string)=>void // Avisa cuando están instalando una nueva versión, eso puede ser tanto a pedido del usuario como en background, el que lo llama es reponsable de hacer algo que no moleste al usuario
+        onReadyToStart:()=>void // Muestra la pantalla
     }
 }
 

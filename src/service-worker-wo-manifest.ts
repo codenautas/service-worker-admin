@@ -45,7 +45,6 @@ self.addEventListener('install', async (evt)=>{
     //si hay cambios no espero para cambiarlo
     // self.skipWaiting();
     console.log("instalando")
-
     event.waitUntil(caches.open(CACHE_NAME).then((cache)=>
         Promise.all(urlsToCache.map(async urlToCache=>{
             var error:Error|null=null;
@@ -55,13 +54,13 @@ self.addEventListener('install', async (evt)=>{
                 error=err;
             }
             var message:Message = {type:'caching', url:urlToCache, error};
-            console.log("hago broadcast")
             broadcastMessage(message);
-            console.log("fin broadcast")
             if(error) throw error;
-        }))
+        })).then(function(){
+            self.skipWaiting();
+            console.log("fin instalando");
+        })
     ));
-    console.log("fin instalando")
     // idea de informar error: https://stackoverflow.com/questions/62909289/how-do-i-handle-a-rejected-promise-in-a-service-worker-install-event
 });
 
@@ -87,7 +86,6 @@ self.addEventListener('fetch', async (evt)=>{
         event.respondWith(
             caches.open(CACHE_NAME).then((cache)=>
                 cache.match(event.request).then(async (response)=>{
-                    console.log("respuesta caché: ", response)
                     return response || ( 
                         event.request.url.match(onTheFlyCacher) && await cache.add(event.request)
                     ) || fetch(event.request).catch(async (err)=>{

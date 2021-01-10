@@ -13,7 +13,7 @@ El uso sería así:
 var swa = new ServiceWorkerAdmin()
 swa.installIfIsNotInstalled({
     onInstalling:()=>{
-        document.getElemntById('installing').style.display='block';
+        document.getElemntById('installing').style.display='';
     },
     onInstalled:async ()=>{
         var confirm = await confirm('Ready to run. Reload?');
@@ -21,7 +21,7 @@ swa.installIfIsNotInstalled({
     },
     onActive:()=>{
         // solo se llama si estaba instalado previamente después del reload
-        document.getElemntById('main-app').style.display='block';
+        document.getElemntById('main-app').style.display='';
         startApp();
     }
 })

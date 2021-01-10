@@ -3,37 +3,54 @@
         <link href="example.css" rel="stylesheet">
     </head>
     <body>
+      <div id=barra_superior><span id=login_time style="margin:12px">-</span> <span id=estado_login>desconocido</span> <a id=accion_login> - </a></div>
+      <div id=main-layout>
         <h1>Calculadora con SWA <span id=version></span></h1>
-        <div style="text-align:right"><span id=login_time style="margin:12px">-</span><a id=estado_login>desconocido</a></div>
         <div id=error-console></div>
         <div id=cargando>cargando...</div>
         <div id=instalando style="display:none">
             <h2>instalando...</h2>
             <div id=archivos></div>
-            <button id=arrancar style="display:none">Instalación Lista. Abrir</button>
+            <div id=volver-de-instalacion>
+                <span id=volver-de-instalacion-por-que></span>
+                <span> </span>
+                <button id=volver-de-instalacion-como>volver</button>
+            </div>
         </div>
         <div id=instalado style="display:none">
-            <input id=visor autofocus><button id=calcular>=</button>
-            <br>
-            <div id=buscar-version-nueva style="display:none">
-                <button id=buscar-version>buscar actualización</button>
-                <span id=resultado-buscar-version></span>
+            <div id=calculadora>
+                <div>
+                    <input id=visor autofocus><button id=calcular>=</button>
+                </div>
+                <div id=history></div>
             </div>
-            <div id=nueva-version-detectada style="display:none">
-                <span >Se detectó una nueva versión </span> <button id=actualizar>actualizar</button>
+            <div id=manejo>
+                <div id=buscar-version-nueva style="display:none">
+                    <button id=buscar-version>buscar actualización</button>
+                    <span id=installer-status></span>
+                </div>
+                <div id=nueva-version-instalando style="display:none">
+                    <span>Se está instalando una nueva verisón.</span> <label> <input type="checkbox" id=ver-instalacion> Ver el proceso de instalación</button>
+                </div>
+                <div>
+                    <button id=desinstalar>desinstalar</button> <button id=confirmar-desinstalar style="display:none">confirmar desinstalación</button>
+                </div>
+                <div>
+                    <a href=only-online.html>Ir a otra página</a><span> - </span>
+                    <button id=agregar_reloj>Agregar reloj</button> 
+                </div>
             </div>
-            <div>
-            <button id=desinstalar>desinstalar</button> <button id=confirmar-desinstalar style="display:none">confirmar desinstalación</button>
-            </div>
-            <div>
-            <a href=only-online.html>Ir a otra página</a><span> - </span>
-            <button id=agregar_reloj>Agregar reloj</button> 
-            </div>
-            <div id=history></div>
         </div>
-        <div id=console></div>
-        <script src="./require-bro/lib/require-bro.js"></script>
-        <script src="./service-worker-admin.js"></script>
-        <script src="./example.js"></script>
+        <div id=nueva-version-instalada style="display:none">
+            <span>Hay una nueva versión instalada </span><button id=refrescar><span class=rotar>↻</span> refrescar</button>
+        </div>
+        <label>👁 console: 
+            <input type="checkbox" id=ver_console>
+            <div id=console></div>
+        </label>
+      </div>
+      <script src="./require-bro/lib/require-bro.js"></script>
+      <script src="./service-worker-admin.js"></script>
+      <script src="./example.js"></script>
     </body>
 </html>

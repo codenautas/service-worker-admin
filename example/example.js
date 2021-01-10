@@ -22,13 +22,16 @@ function mostrarEstadoLogin(){
         lasCookies[pair.substr(0,igual).trim()]=pair.substr(igual+1).trim();
     })
     console.log('lasCookies',lasCookies);
-    var elemento=document.getElementById('estado_login');
+    var elementoEstado=document.getElementById('estado_login');
+    var elementoAccion=document.getElementById('accion_login');
     if(lasCookies.login=='S'){
-        elemento.textContent='logged ✔️';
-        elemento.href='/login-change?state=N';
+        elementoEstado.textContent='logged ✔️';
+        elementoAccion.textContent='sing out';
+        elementoAccion.href='/login-change?state=N';
     }else{
-        elemento.textContent='UNLOGGED'
-        elemento.href='/login-change?state=S';
+        elementoEstado.textContent='UNLOGGED'
+        elementoAccion.textContent='sing in';
+        elementoAccion.href='/login-change?state=S';
     }
 }
 
@@ -40,11 +43,23 @@ async function traerLoginTime(){
 }
 
 window.onload=async function(){
-    var options={
-        onNewVersionAvailable: (version)=>console_log('new version available: ', version)
-    }
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
+    var refrescarStatus=async (active, installing, waiting, installerState)=>{
+        console_log('recibo onStateChange: '+JSON.stringify([active, installing, waiting, installerState]))
+        var forzarVerInstalacion=document.getElementById('ver-instalacion').checked;
+        document.getElementById('nueva-version-instalada').style.display=waiting || installerState=='activated'?'':'none';
+        document.getElementById('volver-de-instalacion').style.display=!(waiting || installerState=='activated')?'':'none';
+        if(active && !forzarVerInstalacion){
+            document.getElementById('instalado').style.display='';
+            document.getElementById('instalando').style.display='none';
+        }else{
+            document.getElementById('ver-instalacion').checked=true;
+            document.getElementById('instalado').style.display='none';
+            document.getElementById('instalando').style.display='';
+        }
+        document.getElementById('installer-status').textContent=installerState?' estado de la instalación: '+installerState:'';
+    };
     swa.installIfIsNotInstalled({
         serviceWorkerFilename:'swa-manifest.js',
         onEachFile: (url, error)=>{
@@ -56,31 +71,12 @@ window.onload=async function(){
             console_log('error: '+(context?` en (${context})`:''), err);
             console_log(context, err, 'error-console')
         },
-        onJustInstalled:async (run)=>{
-            document.getElementById('arrancar').style.display='';
-            document.getElementById('arrancar').onclick=()=>{
-                run()
-            }
-        },
+        onStateChange:refrescarStatus,
         onReadyToStart:startCalculator,
-        onNewVersionAvailable:(install)=>{
-            document.getElementById('nueva-version-detectada').style.display='';
-            document.getElementById('actualizar').onclick=()=>{
-                install();
-            }
-        }
     });
-    async function startCalculator(installing){
-        console.log('startCalculator', installing)
-        if(installing){
-            document.getElementById('instalado').style.display='none';
-            document.getElementById('instalando').style.display='block';
-            return;
-        }
-        document.getElementById('instalando').style.display='none';
-        document.getElementById('instalado').style.display='block';
-        document.getElementById('buscar-version-nueva').style.display='block';
-        document.getElementById('version').textContent=await swa.getSW('version');
+    async function startCalculator(){
+        console.log('startCalculator')
+        document.getElementById('buscar-version-nueva').style.display='';
         var visor = document.getElementById('visor');
         var iNodo=0;
         var resultados={}
@@ -128,6 +124,12 @@ window.onload=async function(){
                 }
             }
         )
+        document.getElementById('refrescar').addEventListener('click',()=>{
+            location.reload()
+        });
+        document.getElementById('volver-de-instalacion-como').addEventListener('click',()=>{
+            location.reload()
+        });
         document.getElementById('desinstalar').addEventListener('click',()=>{
             document.getElementById('confirmar-desinstalar').style.display='';
         })
@@ -139,15 +141,9 @@ window.onload=async function(){
             
         })
         document.getElementById('buscar-version').addEventListener('click',async ()=>{
-            // var existsNewVersion = 
+            document.getElementById('ver-instalacion').checked=true;
+            swa.getStatus(refrescarStatus)
             await swa.check4newVersion();
-            /*
-            document.getElementById('buscar-version').style.display=existsNewVersion?"none":"";
-            document.getElementById('resultado-buscar-version').textContent=existsNewVersion?
-                ""
-            :
-                "la aplicación se encuentra actualizada";
-            */
         })
         var botonAgregarReloj=document.getElementById('agregar_reloj');
         botonAgregarReloj.addEventListener('click',async ()=>{
@@ -165,6 +161,7 @@ window.onload=async function(){
             }
         });
         traerLoginTime();
+        document.getElementById('version').textContent=await swa.getSW('version');
     }
     mostrarEstadoLogin();
     traerLoginTime();

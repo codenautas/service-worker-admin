@@ -1,5 +1,5 @@
 {
-	"version":"0.2.0-a-2.a",
+	"version":"0.2.0-a-2n",
 	"appName":"exampleApp",
 	"cache":[
 		"./require-bro/lib/require-bro.js",
@@ -9,6 +9,14 @@
 		"./example.css",
 		"./example-no-network.html",
 		"./example-no-network-other.html",
+		"./example-large-file?t=1",
+		"./example-large-file?t=1.1",
+		"./example-large-file?t=1.3",
+		"./example-large-file?t=1.5",
+		"./example-large-file?t=2",
+		"./example-large-file?t=3.1",
+		"./example-large-file?t=3.2",
+		"./example-large-file?t=4.3",
 		"./login-time"
 	],
 	"onTheFlyCacher":"/(hdr_panel\\d+_tarea\\d+)|(reloj.js)/",

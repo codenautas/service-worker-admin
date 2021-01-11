@@ -12,8 +12,8 @@ class ServiceWorkerAdmin{
             this.forceInstallScreen = this.forceInstallScreen || !reg?.active
             callback(
                 !this.forceInstallScreen?'app':'OTHER (installing...)',
-                !!reg?.waiting || state=='activated'?'yes':state=='redundant'?'OTHER (yes but...)':'no',
-                !!reg?.active, !!reg?.installing, !!reg?.waiting, state
+                !!reg?.waiting || state=='activated'?'yes':state=='redundant'?'OTHER (no because...)':'no',
+                !!reg?.installing, !!reg?.waiting, !!reg?.active, state
             );
         }
     }
@@ -169,14 +169,14 @@ class ServiceWorkerAdmin{
 
 namespace ServiceWorkerAdmin{
     export type WhatScreen = 'app'|'OTHER (installing...)'; // other may be:  installing or searching for new version, but may be change
-    export type NewVersionAvaiable = 'no'|'yes'|'OTHER (yes but...)'; // other may be: but need login or other, but may be change
+    export type NewVersionAvaiable = 'no'|'yes'|'OTHER (no because...)'; // other may be: but need login or other, but may be change
     export type Options = {
         // Se llaman varias veces
         serviceWorkerFilename?:string,
         onInfoMessage:(message?:string)=>void
         onEachFile:(url:string, error:Error)=>void
         onError:(err:Error, contexto:string)=>void
-        onStateChange:(showScreen:WhatScreen, newVersionAvaiable:NewVersionAvaiable, active:boolean, installing:boolean, waiting:boolean, installerState?:string)=>void // Avisa cuando están instalando una nueva versión, eso puede ser tanto a pedido del usuario como en background, el que lo llama es reponsable de hacer algo que no moleste al usuario
+        onStateChange:(showScreen:WhatScreen, newVersionAvaiable:NewVersionAvaiable, installing:boolean, waiting:boolean, active:boolean, installerState?:string)=>void // Avisa cuando están instalando una nueva versión, eso puede ser tanto a pedido del usuario como en background, el que lo llama es reponsable de hacer algo que no moleste al usuario
         onReadyToStart:()=>void // Muestra la pantalla
     }
 }

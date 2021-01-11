@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import {Server4Test, Server4TestOpts} from "server4test";
 import * as MiniTools from "mini-tools";
+import { sleep } from "best-globals";
 
 function parseStrCookies(cookieString:string, prefix:string){
     var output = {} as {[k:string]:string};
@@ -53,6 +54,18 @@ class ExampleServer extends Server4Test{
                     res.status(401);
                     res.send('not logged in');
                 }
+            }},
+            {path:'/example-large-file', middleware:async function(req, res){
+                var time=req.query.t*1000;
+                var part=1;
+                while(time>0){
+                    console.log(time,part)
+                    time-=100;
+                    res.write('part'+(part++)+'\n');
+                    await sleep(100);
+                }
+                res.write('ok!');
+                res.end();
             }}
         ])
     }

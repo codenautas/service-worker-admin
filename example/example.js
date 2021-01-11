@@ -45,10 +45,12 @@ async function traerLoginTime(){
 window.onload=async function(){
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
-    var refrescarStatus=async (showScreen, newVersionAvaiable)=>{
+    var refrescarStatus=async function(showScreen, newVersionAvaiable, installing){
         console_log('recibo onStateChange: '+JSON.stringify(arguments))
-        document.getElementById('nueva-version-instalada').style.display=newVersionAvaiable!='no';
-        document.getElementById('volver-de-instalacion').style.display=newVersionAvaiable=='no';
+        document.getElementById('nueva-version-instalada').style.display=newVersionAvaiable=='yes'?'':'none';
+        document.getElementById('volver-de-instalacion').style.display=newVersionAvaiable=='yes'?'none':'';
+        document.getElementById('nueva-version-instalando').style.display=installing?'':'none';
+        document.getElementById('buscar-version-nueva').style.display=installing?'none':'';
         if(showScreen=='app'){
             document.getElementById('instalado').style.display='';
             document.getElementById('instalando').style.display='none';
@@ -141,6 +143,10 @@ window.onload=async function(){
         document.getElementById('buscar-version').addEventListener('click',async ()=>{
             swa.getStatus(refrescarStatus)
             await swa.check4newVersion();
+        })
+        document.getElementById('ver-instalacion').addEventListener('click',async ()=>{
+            swa.forceInstallScreen=true;
+            swa.getStatus(refrescarStatus)
         })
         var botonAgregarReloj=document.getElementById('agregar_reloj');
         botonAgregarReloj.addEventListener('click',async ()=>{

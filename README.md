@@ -10,8 +10,8 @@ La API se basa en que parte del conocimiento lo tiene el cliente (la dirección 
 El uso sería así:
 
 ```ts
-var swa = new ServiceWorkerAdmin()
-swa.installIfIsNotInstalled({
+var swa = new ServiceWorkerAdmin2()
+swa.installOrActivate({
     onInstalling:()=>{
         document.getElemntById('installing').style.display='';
     },

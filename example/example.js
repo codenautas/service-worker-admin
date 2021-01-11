@@ -45,22 +45,20 @@ async function traerLoginTime(){
 window.onload=async function(){
     var swa = new ServiceWorkerAdmin()
     document.getElementById('cargando').style.display='none';
-    var refrescarStatus=async (active, installing, waiting, installerState)=>{
-        console_log('recibo onStateChange: '+JSON.stringify([active, installing, waiting, installerState]))
-        var forzarVerInstalacion=document.getElementById('ver-instalacion').checked;
-        document.getElementById('nueva-version-instalada').style.display=waiting || installerState=='activated'?'':'none';
-        document.getElementById('volver-de-instalacion').style.display=!(waiting || installerState=='activated')?'':'none';
-        if(active && !forzarVerInstalacion){
+    var refrescarStatus=async (showScreen, newVersionAvaiable)=>{
+        console_log('recibo onStateChange: '+JSON.stringify(arguments))
+        document.getElementById('nueva-version-instalada').style.display=newVersionAvaiable!='no';
+        document.getElementById('volver-de-instalacion').style.display=newVersionAvaiable=='no';
+        if(showScreen=='app'){
             document.getElementById('instalado').style.display='';
             document.getElementById('instalando').style.display='none';
         }else{
-            document.getElementById('ver-instalacion').checked=true;
             document.getElementById('instalado').style.display='none';
             document.getElementById('instalando').style.display='';
         }
-        document.getElementById('installer-status').textContent=installerState?' estado de la instalación: '+installerState:'';
+        // document.getElementById('installer-status').textContent=installerState?' estado de la instalación: '+installerState:'';
     };
-    swa.installIfIsNotInstalled({
+    swa.installOrActivate({
         serviceWorkerFilename:'swa-manifest.js',
         onEachFile: (url, error)=>{
             console_log('file: ',url);
@@ -68,7 +66,7 @@ window.onload=async function(){
         },
         onInfoMessage: (m)=>console_log('message: ', m),
         onError: (err, context)=>{
-            console_log('error: '+(context?` en (${context})`:''), err);
+            console_log('error: '+(context?` en (${context}) `:''), err);
             console_log(context, err, 'error-console')
         },
         onStateChange:refrescarStatus,
@@ -141,7 +139,6 @@ window.onload=async function(){
             
         })
         document.getElementById('buscar-version').addEventListener('click',async ()=>{
-            document.getElementById('ver-instalacion').checked=true;
             swa.getStatus(refrescarStatus)
             await swa.check4newVersion();
         })

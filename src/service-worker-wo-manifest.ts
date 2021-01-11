@@ -4,7 +4,7 @@
 var version:string = '/*version*/';
 var appName:string = '/*appName*/';
 var urlsToCache:string[] = [/*urlsToCache*/];
-var fallback:{path:string, fallback:string}[] = [/*fallbacks*/];
+var fallback:{path:string, fallback:string, withoutCache?:boolean}[] = [/*fallbacks*/];
 var onTheFlyCacher = /#CACHE$/;
 // TEMPLATE-END
 
@@ -67,7 +67,8 @@ self.addEventListener('install', async (evt)=>{
 var specialSources:{[key:string]:()=>Promise<any>|any}={
     "@version": ()=>version,
     "@CACHE_NAME": ()=>CACHE_NAME,
-    "@urlsToCache": ()=>urlsToCache.map(r=>{var u = new URL(new Request(r).url); return u.pathname + u.search;})
+    "@urlsToCache": ()=>urlsToCache.map(r=>{var u = new URL(new Request(r).url); return u.pathname + u.search;}),
+    "@fallback": ()=>JSON.stringify(fallback)
 }
 
 self.addEventListener('fetch', async (evt)=>{

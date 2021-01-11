@@ -3,16 +3,25 @@
 class ServiceWorkerAdmin{
     private options:Partial<ServiceWorkerAdmin.Options>={};
     private currentRegistration:ServiceWorkerRegistration|null = null;
+    private forceInstallScreen:boolean = false;
     constructor(){
     }
     getStatus(callback?:ServiceWorkerAdmin.Options["onStateChange"], state?:ServiceWorkerState){
         if(callback!=null){
             var reg = this.currentRegistration;
-            callback(!!reg?.active, !!reg?.installing, !!reg?.waiting, state);
+            this.forceInstallScreen = this.forceInstallScreen || !reg?.active
+            callback(
+                !this.forceInstallScreen?'app':'OTHER (installing...)',
+                !!reg?.waiting || state=='activated'?'yes':state=='redundant'?'OTHER (yes but...)':'no',
+                !!reg?.active, !!reg?.installing, !!reg?.waiting, state
+            );
         }
     }
-    async installIfIsNotInstalled(opts: ServiceWorkerAdmin.Options):Promise<void>{
-      try{
+    async installIfIsNotInstalled():Promise<void>{
+        throw new Error('deprectated!!!! renamed to "installOrActivate" opts changed')
+    }
+    async installOrActivate(opts: ServiceWorkerAdmin.Options):Promise<void>{
+    try{
         this.options = opts;
         if('serviceWorker' in navigator){
             var reg = await navigator.serviceWorker.register(
@@ -109,11 +118,14 @@ class ServiceWorkerAdmin{
                 this.options?.onError?.(new Error(`Manifest cache "${urlsToCache}"`), 'initializing service-worker')
             }
             return;
-        }
+        };
+        var fallbacks = (await this.getSW("fallback") as {path:string, fallback:string, withoutCache?:boolean}[])
+            .filter(def=>!def.withoutCache);
         [   
             {obj:document.scripts    , prop:'src' },
             {obj:document.images     , prop:'src' },
             {obj:document.styleSheets, prop:'href'},
+            {obj:fallbacks           , prop:'fallback'}
         ].forEach(def=>{
             Array.prototype.forEach.call(def.obj, node=>{
                 var path = node[def.prop];
@@ -148,21 +160,23 @@ class ServiceWorkerAdmin{
         }
     }
     async check4newVersion():Promise<void>{
-        // var reg = 
+        this.forceInstallScreen = true;
+        this.getStatus(this.options.onStateChange);
         var result = await this.currentRegistration?.update()
         console.log('checking 4 new Version. Check ok',result)
-        // return reg!=null && (!!reg.waiting || !!reg.installing);
     }
 }
 
 namespace ServiceWorkerAdmin{
+    export type WhatScreen = 'app'|'OTHER (installing...)'; // other may be:  installing or searching for new version, but may be change
+    export type NewVersionAvaiable = 'no'|'yes'|'OTHER (yes but...)'; // other may be: but need login or other, but may be change
     export type Options = {
         // Se llaman varias veces
         serviceWorkerFilename?:string,
         onInfoMessage:(message?:string)=>void
         onEachFile:(url:string, error:Error)=>void
         onError:(err:Error, contexto:string)=>void
-        onStateChange:(active:boolean, installing:boolean, waiting:boolean, installerState?:string)=>void // Avisa cuando están instalando una nueva versión, eso puede ser tanto a pedido del usuario como en background, el que lo llama es reponsable de hacer algo que no moleste al usuario
+        onStateChange:(showScreen:WhatScreen, newVersionAvaiable:NewVersionAvaiable, active:boolean, installing:boolean, waiting:boolean, installerState?:string)=>void // Avisa cuando están instalando una nueva versión, eso puede ser tanto a pedido del usuario como en background, el que lo llama es reponsable de hacer algo que no moleste al usuario
         onReadyToStart:()=>void // Muestra la pantalla
     }
 }

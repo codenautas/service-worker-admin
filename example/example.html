@@ -11,6 +11,7 @@
         <div id=instalando style="display:none">
             <h2>instalando...</h2>
             <div id=archivos></div>
+            <!-- MUST: EN LA PANTALLA DE INSTALACIÓN tiene que haber un botón "Volver" que se muestra si no se muestra el "hay una nueva versión" -->
             <div id=volver-de-instalacion>
                 <span id=volver-de-instalacion-por-que></span>
                 <span> </span>
@@ -25,13 +26,16 @@
                 <div id=history></div>
             </div>
             <div id=manejo>
+                <!-- MUST: En la app tiene que haber un botón para buscar versión que lo manda a la pantalla de instalación -->
                 <div id=buscar-version-nueva style="display:none">
                     <button id=buscar-version>buscar actualización</button>
                 </div>
+                <!-- MAY BE: Puede haber un aviso de "se está instalando" que reemplace el de buscar versión -->
                 <div id=nueva-version-instalando style="display:none">
                     <span>Se está instalando una nueva verisón.</span> <label> <button type="checkbox" id=ver-instalacion> Ver el proceso de instalación</button>
                 </div>
                 <div>
+                    <!-- MAY BE: Es bueno que se pueda desinstalar pero con mucha confirmacion  -->
                     <button id=desinstalar>desinstalar</button> <button id=confirmar-desinstalar style="display:none">confirmar desinstalación</button>
                 </div>
                 <div>
@@ -40,6 +44,7 @@
                 </div>
             </div>
         </div>
+        <!-- MUST: EN AMBAS PANTALLAS HAY QUE PONER EL AVISO DE NUEVA VERSIÓN CON UN BOTÓN QUE HAGA location.reload() -->
         <div id=nueva-version-instalada style="display:none">
             <span>Hay una nueva versión instalada </span><button id=refrescar><span class=rotar>↻</span> refrescar</button>
         </div>

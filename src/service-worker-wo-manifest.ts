@@ -114,20 +114,27 @@ self.addEventListener('fetch', async (evt)=>{
 self.addEventListener('activate', (evt)=>{
     // @ts-expect-error Esperando que agregen el listener de 'fetch' en el sistema de tipos
     var event:FetchEvent = evt;
-    console.log("borrando caches viejas")
+    console.log("recuperando urls que coincidan con onTheFlyCacher y borrando caches viejas")
     event.waitUntil(
-        caches.keys().then((cacheNames)=>{
-            return Promise.all(
+        caches.keys().then(async (cacheNames)=>{
+            await  Promise.all(
                 cacheNames.filter((cacheName)=>
                     cacheName != CACHE_NAME
-                ).map((cacheName)=>{
+                ).map(async(cacheName)=>{
+                    //pedirle las urls que coincidan onTheFlyCacher
+                    let cache = await caches.open(cacheName);
+                    let keys = await cache.keys();
+                    for(var estructuraKey of keys.filter((key)=>key.url.match(onTheFlyCacher))){
+                        console.log('recuperando estructura ', estructuraKey.url)
+                        await caches.open(CACHE_NAME).then(async (cache) => await cache.add(estructuraKey.url));
+                    } 
                     console.log("borrando cache ", cacheName);
                     return caches.delete(cacheName);
                 })
             );
+            console.log("fin borrando caches viejas")
         })
     );
-    console.log("fin borrando caches viejas")
 });
 
 self.addEventListener('message', function(evt) {

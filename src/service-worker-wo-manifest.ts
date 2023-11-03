@@ -4,7 +4,8 @@
 var version:string = '/*version*/';
 var appName:string = '/*appName*/';
 var urlsToCache:string[] = [/*urlsToCache*/];
-var fallback:{path:string, fallback:string, withoutCache?:boolean}[] = [/*fallbacks*/];
+var fallbacks:{path:string, fallback:string, withoutCache?:boolean}[] = [/*fallbacks*/];
+var defaultFallback: string|null = '/*defaultFallback*/';
 var onTheFlyCacher = /#CACHE$/;
 // TEMPLATE-END
 
@@ -68,7 +69,7 @@ var specialSources:{[key:string]:()=>Promise<any>|any}={
     "@version": ()=>version,
     "@CACHE_NAME": ()=>CACHE_NAME,
     "@urlsToCache": ()=>urlsToCache.map(r=>{var u = new URL(new Request(r).url); return u.pathname + u.search;}),
-    "@fallback": ()=>JSON.stringify(fallback)
+    "@fallback": ()=>JSON.stringify(fallbacks)
 }
 
 self.addEventListener('fetch', async (evt)=>{
@@ -92,9 +93,10 @@ self.addEventListener('fetch', async (evt)=>{
                     ) || fetch(event.request).catch(async (err)=>{
                         console.log(err)
                         console.log("request: ", event.request)
-                        var fallbackResult = fallback.find((aFallback)=>aFallback.path.includes(source))
-                        if(fallbackResult){
-                            return cache.match(fallbackResult.fallback).then((response)=>{
+                        var fallbackResult = fallbacks.find((aFallback)=>aFallback.path.includes(source));
+                        var myFallback = fallbackResult?.fallback || defaultFallback;
+                        if(myFallback){
+                            return cache.match(myFallback).then((response)=>{
                                 if(response){
                                     console.log("respuesta fallback: ", response)
                                     return response
